@@ -16,7 +16,7 @@ export default function ProfilePage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary/30 to-accent/20 flex items-center justify-center text-2xl font-semibold text-primary">
+              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gradient-to-br from-primary/30 to-accent/20 flex items-center justify-center text-xl sm:text-2xl font-semibold text-primary">
                 AJ
               </div>
               <span className="absolute -bottom-1 -right-1 rounded-full bg-surface/80 border border-border/30 px-2 py-1 text-xs text-muted-foreground">Student</span>

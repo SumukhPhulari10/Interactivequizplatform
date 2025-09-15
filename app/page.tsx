@@ -41,7 +41,7 @@ export default function Home() {
             <Link href="/branches" className="px-3 py-2 rounded-md hover:bg-accent/50">Branches</Link>
             <Link href="/leaderboard" className="px-3 py-2 rounded-md hover:bg-accent/50">Leaderboard</Link>
             <Link href="/contribute" className="px-3 py-2 rounded-md hover:bg-accent/20">Contribute</Link>
-            <Link href="/profile" className="px-3 py-2 rounded-md border border-input px-4">Sign in</Link>
+            <Link href="/signin" className="px-3 py-2 rounded-md border border-input px-4">Sign in</Link>
           </nav>
 
           {/* Mobile menu (no JS) */}
@@ -57,7 +57,7 @@ export default function Home() {
               <Link href="/branches" className="block px-3 py-2 rounded-md hover:bg-accent/5">Branches</Link>
               <Link href="/leaderboard" className="block px-3 py-2 rounded-md hover:bg-accent/5">Leaderboard</Link>
               <Link href="/contribute" className="block px-3 py-2 rounded-md hover:bg-accent/5">Contribute</Link>
-              <Link href="/profile" className="block px-3 py-2 rounded-md border border-input text-center">Sign in</Link>
+              <Link href="/signin" className="block px-3 py-2 rounded-md border border-input text-center">Sign in</Link>
             </div>
           </details>
         </div>
