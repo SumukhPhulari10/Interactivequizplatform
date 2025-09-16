@@ -1,30 +1,30 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../components/auth/AuthProvider";
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [remember, setRemember] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [touched, setTouched] = useState<{ email: boolean; password: boolean }>({ email: false, password: false });
-
-  const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), [email]);
-  const passwordValid = useMemo(() => password.length >= 6, [password]);
-  const formValid = emailValid && passwordValid;
+  const [error, setError] = useState<string | null>(null);
+  const { login } = useAuth();
+  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setTouched({ email: true, password: true });
-    if (!formValid) return;
+    setError(null);
     setSubmitting(true);
-    try {
-      await new Promise((r) => setTimeout(r, 700));
-      console.log({ email, password, remember });
-    } finally {
-      setSubmitting(false);
+    const ok = await login(username.trim(), password);
+    setSubmitting(false);
+    if (ok) {
+      router.push("/profile");
+    } else {
+      setError("Enter username and password");
     }
   }
 
@@ -66,41 +66,32 @@ export default function SignInPage() {
           <div className="w-full max-w-md">
             <div className="rounded-xl bg-surface/80 border border-border/30 p-6 shadow-lg">
               <h2 className="text-2xl font-semibold">Sign in</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Use your account to continue.</p>
+              <p className="mt-1 text-sm text-muted-foreground">Use your username and password.</p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
                 <label className="block">
-                  <span className="text-sm text-muted-foreground">Email</span>
+                  <span className="text-sm text-muted-foreground">Username</span>
                   <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onBlur={() => setTouched((t) => ({ ...t, email: true }))}
-                    className={`mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 ${
-                      touched.email && !emailValid ? "border-red-500/60 focus:ring-red-500/30" : "border-border/30 focus:ring-primary/30"
-                    }`}
-                    placeholder="you@example.edu"
-                    aria-label="Email"
-                    aria-invalid={touched.email && !emailValid}
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    placeholder="your username"
+                    aria-label="Username"
                   />
-                  {touched.email && !emailValid && (
-                    <div className="mt-1 text-xs text-red-500">Enter a valid email.</div>
-                  )}
                 </label>
 
                 <label className="block relative">
                   <span className="text-sm text-muted-foreground">Password</span>
                   <input
                     type={show ? "text" : "password"}
+                    required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-                    className={`mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 ${
-                      touched.password && !passwordValid ? "border-red-500/60 focus:ring-red-500/30" : "border-border/30 focus:ring-primary/30"
-                    }`}
-                    placeholder="Minimum 6 characters"
+                    className="mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    placeholder="Enter password"
                     aria-label="Password"
-                    aria-invalid={touched.password && !passwordValid}
                   />
                   <button
                     type="button"
@@ -111,9 +102,7 @@ export default function SignInPage() {
                   >
                     {show ? "Hide" : "Show"}
                   </button>
-                  {touched.password && !passwordValid && (
-                    <div className="mt-1 text-xs text-red-500">Password must be at least 6 characters.</div>
-                  )}
+                  {error && <div className="mt-1 text-xs text-red-500">{error}</div>}
                 </label>
 
                 <div className="flex items-center justify-between">
@@ -134,11 +123,9 @@ export default function SignInPage() {
 
                 <button
                   type="submit"
-                  disabled={submitting || !formValid}
+                  disabled={submitting}
                   className={`w-full mt-1 inline-flex justify-center items-center gap-2 rounded-md px-4 py-2 text-sm font-medium shadow ${
-                    submitting || !formValid
-                      ? "bg-primary/60 text-primary-foreground cursor-not-allowed"
-                      : "bg-primary text-primary-foreground hover:bg-primary/90"
+                    submitting ? "bg-primary/60 text-primary-foreground cursor-not-allowed" : "bg-primary text-primary-foreground hover:bg-primary/90"
                   }`}
                 >
                   {submitting ? (

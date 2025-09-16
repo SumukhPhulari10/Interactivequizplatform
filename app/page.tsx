@@ -1,6 +1,7 @@
 // ...existing code...
 import Link from "next/link";
 import Image from "next/image";
+import { Spotlight } from "@/components/ui/spotlight-new";
 
 export default function Home() {
   const branches = [
@@ -64,10 +65,12 @@ export default function Home() {
       </header>
 
       <main className="container mx-auto px-5 sm:px-6 pb-16">
-        {/* Hero */}
-        <section className="grid gap-8 md:grid-cols-2 items-center mt-8">
+        {/* Hero with subtle spotlight background */}
+        <section className="relative overflow-hidden rounded-xl bg-black/[0.96] text-white grid gap-8 md:grid-cols-2 items-center mt-8">
+          <Spotlight />
+          <div className="absolute inset-0 bg-grid-white/[0.02] pointer-events-none" aria-hidden />
           <div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-300">
               Practice smarter across every engineering branch
             </h1>
             <p className="mt-4 max-w-xl text-muted-foreground">

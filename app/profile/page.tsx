@@ -2,13 +2,30 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useAuth } from "../components/auth/AuthProvider";
 
 export default function ProfilePage() {
+  const { user, logout } = useAuth();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("Alex Johnson");
   const [branch, setBranch] = useState("Electrical");
   const [bio, setBio] = useState("3rd year engineering student. Loves circuits & embedded systems.");
   const [email] = useState("alex.johnson@university.edu");
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground px-4">
+        <div className="max-w-md text-center rounded-lg border border-border/30 bg-surface p-6">
+          <h2 className="text-lg font-semibold">Not signed in</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Sign in to view your profile and progress.</p>
+          <div className="mt-4 flex justify-center gap-3">
+            <Link href="/signin" className="px-4 py-2 rounded-md bg-primary text-primary-foreground">Sign in</Link>
+            <Link href="/" className="px-4 py-2 rounded-md border border-border/30">Home</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground px-4 sm:px-6 py-8">
@@ -34,9 +51,12 @@ export default function ProfilePage() {
             >
               {editing ? "Cancel" : "Edit profile"}
             </button>
-            <Link href="/quizzes" className="hidden sm:inline-flex items-center px-4 py-2 rounded-md border border-border/30 text-sm hover:bg-surface">
-              Take a quiz
-            </Link>
+            <button
+              onClick={() => logout()}
+              className="inline-flex items-center px-4 py-2 rounded-md border border-border/30 text-sm hover:bg-surface"
+            >
+              Sign out
+            </button>
           </div>
         </div>
 
