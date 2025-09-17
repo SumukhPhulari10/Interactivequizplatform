@@ -1,6 +1,5 @@
 // ...existing code...
 import Link from "next/link";
-import Image from "next/image";
 import { Spotlight } from "@/components/ui/spotlight-new";
 
 export default function Home() {

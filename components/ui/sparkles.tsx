@@ -35,10 +35,10 @@ export function SparklesCore({
     if (!ctx) return;
 
     let animation = 0;
-    let frame = 0;
     const particles: { x: number; y: number; r: number; vx: number; vy: number; a: number }[] = [];
 
     function resize() {
+      if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
       canvas.width = Math.max(1, Math.floor(rect.width * dpr));
       canvas.height = Math.max(1, Math.floor(rect.height * dpr));
@@ -90,7 +90,6 @@ export function SparklesCore({
         ctx.fill();
       }
       ctx.restore();
-      frame++;
       animation = requestAnimationFrame(draw);
     }
 
@@ -111,5 +110,6 @@ export function SparklesCore({
 
   return <canvas ref={canvasRef} className={className} />;
 }
+
 
 
