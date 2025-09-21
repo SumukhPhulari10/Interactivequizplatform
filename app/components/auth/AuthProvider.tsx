@@ -13,29 +13,42 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
+  // Set isClient to true once component is mounted
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("authUser");
-      if (raw) setUser(JSON.parse(raw));
-    } catch {}
+    setIsClient(true);
   }, []);
+
+  // Only access localStorage after component is mounted on client
+  useEffect(() => {
+    if (isClient) {
+      try {
+        const raw = localStorage.getItem("authUser");
+        if (raw) setUser(JSON.parse(raw));
+      } catch {}
+    }
+  }, [isClient]);
 
   async function login(username: string, password: string) {
     if (!username || !password) return false;
     const u = { name: username };
     setUser(u);
-    try {
-      localStorage.setItem("authUser", JSON.stringify(u));
-    } catch {}
+    if (isClient) {
+      try {
+        localStorage.setItem("authUser", JSON.stringify(u));
+      } catch {}
+    }
     return true;
   }
 
   function logout() {
     setUser(null);
-    try {
-      localStorage.removeItem("authUser");
-    } catch {}
+    if (isClient) {
+      try {
+        localStorage.removeItem("authUser");
+      } catch {}
+    }
   }
 
   return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
@@ -46,6 +59,10 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
 }
+
+
+
+
 
 
 
