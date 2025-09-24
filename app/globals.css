@@ -3,6 +3,7 @@
 :root {
   --background: 0 0% 100%;
   --foreground: 240 10% 3.9%;
+  --surface: 240 4.8% 99.0%;
   --card: 0 0% 100%;
   --card-foreground: 240 10% 3.9%;
   --popover: 0 0% 100%;
@@ -17,8 +18,8 @@
   --accent-foreground: 240 5.9% 10%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
+  --border: 240 5.9% 86%;
+  --input: 240 5.9% 86%;
   --ring: 240 5.9% 10%;
   --radius: 0.5rem;
 }
@@ -26,6 +27,7 @@
 .dark {
   --background: 240 10% 3.9%;
   --foreground: 0 0% 98%;
+  --surface: 240 3.7% 7.5%;
   --card: 240 10% 3.9%;
   --card-foreground: 0 0% 98%;
   --popover: 240 10% 3.9%;
@@ -48,6 +50,7 @@
 @theme {
   --color-background: oklch(from hsl(var(--background)) l c h);
   --color-foreground: oklch(from hsl(var(--foreground)) l c h);
+  --color-surface: oklch(from hsl(var(--surface)) l c h);
   --color-card: oklch(from hsl(var(--card)) l c h);
   --color-card-foreground: oklch(from hsl(var(--card-foreground)) l c h);
   --color-popover: oklch(from hsl(var(--popover)) l c h);

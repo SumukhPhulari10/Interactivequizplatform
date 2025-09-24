@@ -98,7 +98,9 @@ export default function RootLayout({
 
                 <div className="ml-auto flex items-center gap-3">
                   <ThemeToggle />
-                  {/* keep Sign in only in the main header area or signin page; remove top duplicate */}
+                  <Link href="/signin" className="px-3 py-2 rounded-md border border-input text-sm">
+                    Sign in
+                  </Link>
                 </div>
               </div>
             </header>

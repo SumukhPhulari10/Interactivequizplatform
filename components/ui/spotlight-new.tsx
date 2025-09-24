@@ -24,11 +24,15 @@ export function Spotlight() {
       ref={ref}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      className="absolute inset-0 pointer-events-auto"
+      className="absolute inset-0 pointer-events-none"
       style={{ background: bg }}
     />
   );
 }
+
+
+
+
 
 
 

@@ -22,52 +22,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border/40">
-        <div className="container mx-auto px-5 sm:px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <svg className="h-9 w-9 text-primary" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path d="M3 12h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              <path d="M12 3v18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            <div>
-              <div className="font-bold text-lg leading-none">EngiQuiz</div>
-              <div className="text-xs text-muted-foreground -mt-0.5">Practice · Learn · Master</div>
-            </div>
-          </Link>
-
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-4 text-sm">
-            <Link href="/quizzes" className="px-3 py-2 rounded-md hover:bg-accent/50">Quizzes</Link>
-            <Link href="/branches" className="px-3 py-2 rounded-md hover:bg-accent/50">Branches</Link>
-            <Link href="/leaderboard" className="px-3 py-2 rounded-md hover:bg-accent/50">Leaderboard</Link>
-            <Link href="/contribute" className="px-3 py-2 rounded-md hover:bg-accent/20">Contribute</Link>
-            <Link href="/signin" className="px-3 py-2 rounded-md border border-input px-4">Sign in</Link>
-          </nav>
-
-          {/* Mobile menu (no JS) */}
-          <details className="md:hidden">
-            <summary className="flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer">
-              <svg className="h-6 w-6 text-foreground" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-              <span className="text-sm">Menu</span>
-            </summary>
-            <div className="mt-2 rounded-lg border border-border/30 bg-surface p-3 shadow-sm space-y-2">
-              <Link href="/quizzes" className="block px-3 py-2 rounded-md hover:bg-accent/5">Quizzes</Link>
-              <Link href="/branches" className="block px-3 py-2 rounded-md hover:bg-accent/5">Branches</Link>
-              <Link href="/leaderboard" className="block px-3 py-2 rounded-md hover:bg-accent/5">Leaderboard</Link>
-              <Link href="/contribute" className="block px-3 py-2 rounded-md hover:bg-accent/5">Contribute</Link>
-              <Link href="/signin" className="block px-3 py-2 rounded-md border border-input text-center">Sign in</Link>
-            </div>
-          </details>
-        </div>
-      </header>
+      
 
       <main className="container mx-auto px-5 sm:px-6 pb-16">
         {/* Hero with subtle spotlight background */}
-        <section className="relative overflow-hidden rounded-xl bg-black/[0.96] text-white grid gap-8 md:grid-cols-2 items-center mt-8">
+        <section className="relative overflow-hidden rounded-xl bg-surface text-foreground grid gap-8 md:grid-cols-2 items-center mt-8 border border-border/40">
           <Spotlight />
-          <div className="absolute inset-0 bg-grid-white/[0.02] pointer-events-none" aria-hidden />
+          <div className="absolute inset-0 pointer-events-none dark:bg-grid-white/[0.02] bg-grid-black/[0.04]" aria-hidden />
           <div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-300">
               Practice smarter across every engineering branch
