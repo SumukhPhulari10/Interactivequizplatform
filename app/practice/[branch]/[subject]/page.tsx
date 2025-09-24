@@ -92,7 +92,7 @@ export default function PracticeEditor({ params }: { params: Promise<{ branch: s
 
         <section className="grid gap-4">
           {items.length === 0 && (
-            <div className="rounded-lg border border-border/40 p-4 text-sm text-muted-foreground">No questions yet. Click "Add question" to begin.</div>
+            <div className="rounded-lg border border-border/40 p-4 text-sm text-muted-foreground">No questions yet. Click &quot;Add question&quot; to begin.</div>
           )}
           {items.map((q, qi) => (
             <div key={q.id} className="rounded-lg border border-border/40 bg-surface p-4">
