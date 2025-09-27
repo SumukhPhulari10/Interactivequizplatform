@@ -2,11 +2,13 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type User = { name: string };
+type Role = "student" | "teacher" | "admin";
+type User = { name: string; role: Role };
 type AuthContextType = {
   user: User | null;
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string, role: Role) => Promise<boolean>;
   logout: () => void;
+  hasRole: (roles: Role | Role[]) => boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,9 +32,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     }
   }, [isClient]);
 
-  async function login(username: string, password: string) {
+  async function login(username: string, password: string, role: Role) {
     if (!username || !password) return false;
-    const u = { name: username };
+    const u: User = { name: username, role };
     setUser(u);
     if (isClient) {
       try {
@@ -51,7 +53,13 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     }
   }
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
+  function hasRole(roles: Role | Role[]) {
+    if (!user) return false;
+    const allowed = Array.isArray(roles) ? roles : [roles];
+    return allowed.includes(user.role);
+  }
+
+  return <AuthContext.Provider value={{ user, login, logout, hasRole }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

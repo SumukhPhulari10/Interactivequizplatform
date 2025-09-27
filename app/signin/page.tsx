@@ -13,16 +13,18 @@ export default function SignInPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { login } = useAuth();
+  const [role, setRole] = useState<"student" | "teacher" | "admin">("student");
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
-    const ok = await login(username.trim(), password);
+    const ok = await login(username.trim(), password, role);
     setSubmitting(false);
     if (ok) {
-      router.push("/profile");
+      const dest = role === "admin" ? "/admin" : role === "teacher" ? "/teacher" : "/student";
+      router.push(dest);
     } else {
       setError("Enter username and password");
     }
@@ -66,7 +68,19 @@ export default function SignInPage() {
           <div className="w-full max-w-md">
             <div className="rounded-xl bg-surface/80 border border-border/30 p-6 shadow-lg">
               <h2 className="text-2xl font-semibold">Sign in</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Use your username and password.</p>
+              <p className="mt-1 text-sm text-muted-foreground">Choose your role and sign in.</p>
+                <label className="block">
+                  <span className="text-sm text-muted-foreground">Role</span>
+                  <select
+                    value={role}
+                    onChange={(e) => setRole(e.target.value as any)}
+                    className="mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </label>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
                 <label className="block">

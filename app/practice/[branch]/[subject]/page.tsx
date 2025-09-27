@@ -2,6 +2,7 @@
 
 import { use, useEffect, useMemo, useState, type ChangeEvent } from "react";
 import Link from "next/link";
+import RoleGuard from "@/app/components/auth/RoleGuard";
 
 type Choice = { text: string };
 type EditableQuestion = {
@@ -73,6 +74,7 @@ export default function PracticeEditor({ params }: { params: Promise<{ branch: s
   }
 
   return (
+    <RoleGuard allow={["teacher", "admin"]}>
     <div className="min-h-screen bg-background text-foreground">
       <main className="container mx-auto px-5 sm:px-6 py-10">
         <header className="mb-6">
@@ -137,6 +139,7 @@ export default function PracticeEditor({ params }: { params: Promise<{ branch: s
         </section>
       </main>
     </div>
+    </RoleGuard>
   );
 }
 

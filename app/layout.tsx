@@ -3,7 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import ThemeToggle from "./components/ui/ThemeToggle";
+import MobileMenu from "./components/ui/MobileMenu";
 import AuthProvider from "./components/auth/AuthProvider";
+import UserMenu from "./components/auth/UserMenu";
 import { TextHoverEffect } from "@/components/ui/text-hover-effect";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 
@@ -67,7 +69,7 @@ export default function RootLayout({
                     { href: "/quizzes", label: "Quizzes" },
                     { href: "/branches", label: "Branches" },
                     { href: "/leaderboard", label: "Leaderboard" },
-                    { href: "/contribute", label: "Contribute" },
+                    
                   ].map((item) => (
                     <div key={item.href} className="relative group">
                       <GlowingEffect spread={40} proximity={64} inactiveZone={0.02} />
@@ -78,29 +80,13 @@ export default function RootLayout({
                   ))}
                 </nav>
 
-                {/* Mobile menu (no JS) */}
-                <div className="md:hidden ml-auto">
-                  <details>
-                    <summary className="flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer text-foreground/80">
-                      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" aria-hidden>
-                        <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                      </svg>
-                      <span className="text-sm">Menu</span>
-                    </summary>
-                    <div className="mt-2 rounded-lg border border-border/30 bg-surface p-3 shadow-sm space-y-2">
-                      <Link href="/quizzes" className="block px-3 py-2 rounded-md hover:bg-accent/5">Quizzes</Link>
-                      <Link href="/branches" className="block px-3 py-2 rounded-md hover:bg-accent/5">Branches</Link>
-                      <Link href="/leaderboard" className="block px-3 py-2 rounded-md hover:bg-accent/5">Leaderboard</Link>
-                      <Link href="/contribute" className="block px-3 py-2 rounded-md hover:bg-accent/5">Contribute</Link>
-                    </div>
-                  </details>
-                </div>
+                {/* Mobile menu with outside click/escape to close */}
+                <MobileMenu />
 
                 <div className="ml-auto flex items-center gap-3">
                   <ThemeToggle />
-                  <Link href="/signin" className="px-3 py-2 rounded-md border border-input text-sm">
-                    Sign in
-                  </Link>
+                  {/* Role-aware user section */}
+                  <UserMenu />
                 </div>
               </div>
             </header>

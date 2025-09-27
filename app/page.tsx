@@ -222,7 +222,7 @@ export default function Home() {
           </div>
           <div className="flex w-full sm:w-auto gap-3">
             <Link href="/quizzes" className="w-full sm:w-auto px-4 py-2 rounded-md bg-primary text-primary-foreground text-center">Start practicing</Link>
-            <Link href="/contribute" className="w-full sm:w-auto px-4 py-2 rounded-md border border-input text-center">Contribute</Link>
+            
           </div>
         </section>
       </main>
