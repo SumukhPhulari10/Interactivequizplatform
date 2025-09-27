@@ -73,7 +73,9 @@ export default function SignInPage() {
                   <span className="text-sm text-muted-foreground">Role</span>
                   <select
                     value={role}
-                    onChange={(e) => setRole(e.target.value as any)}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      setRole(e.target.value as "student" | "teacher" | "admin")
+                    }
                     className="mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
                     <option value="student">Student</option>
