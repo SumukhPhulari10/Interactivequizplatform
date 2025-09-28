@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../components/auth/AuthProvider";
+import { getPasswordChecks, isPasswordValid } from "../utils/validators";
 
 export default function SignInPage() {
   const [username, setUsername] = useState("");
@@ -15,11 +16,18 @@ export default function SignInPage() {
   const { login } = useAuth();
   const [role, setRole] = useState<"student" | "teacher" | "admin">("student");
   const router = useRouter();
+  const passwordValid = useMemo(() => isPasswordValid(password), [password]);
+  const checks = useMemo(() => getPasswordChecks(password), [password]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
+    if (!passwordValid) {
+      setSubmitting(false);
+      setError("Password must start with an uppercase letter, include a number and a symbol (min 6 chars).");
+      return;
+    }
     const ok = await login(username.trim(), password, role);
     setSubmitting(false);
     if (ok) {
@@ -106,7 +114,7 @@ export default function SignInPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    placeholder="Enter password"
+                    placeholder="Start with uppercase, include a number & a symbol"
                     aria-label="Password"
                   />
                   <button
@@ -116,8 +124,27 @@ export default function SignInPage() {
                     aria-pressed={show}
                     aria-label={show ? "Hide password" : "Show password"}
                   >
-                    {show ? "Hide" : "Show"}
+                    {show ? (
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12c2.5-5 7-7.5 9.75-7.5S19.5 7 21.75 12c-1.02 2.27-2.63 4.04-4.53 5.23" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.88 9.88A3 3 0 0012 15a3 3 0 002.12-.88" />
+                      </svg>
+                    ) : (
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12c2.5-5 7-7.5 9.75-7.5S19.5 7 21.75 12c-2.25 5-6.75 7.5-9.75 7.5S4.75 17 2.25 12z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    )}
                   </button>
+                  <div className="mt-2">
+                    <ul className="text-xs space-y-1">
+                      <li className={`${checks.firstUppercase ? "text-emerald-500" : "text-red-500"}`}>• First letter is uppercase</li>
+                      <li className={`${checks.hasNumber ? "text-emerald-500" : "text-red-500"}`}>• Contains at least one number</li>
+                      <li className={`${checks.hasSymbol ? "text-emerald-500" : "text-red-500"}`}>• Contains at least one symbol</li>
+                      <li className={`${checks.minLength ? "text-emerald-500" : "text-red-500"}`}>• Minimum 6 characters</li>
+                    </ul>
+                  </div>
                   {error && <div className="mt-1 text-xs text-red-500">{error}</div>}
                 </label>
 
@@ -139,9 +166,9 @@ export default function SignInPage() {
 
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || !passwordValid}
                   className={`w-full mt-1 inline-flex justify-center items-center gap-2 rounded-md px-4 py-2 text-sm font-medium shadow ${
-                    submitting ? "bg-primary/60 text-primary-foreground cursor-not-allowed" : "bg-primary text-primary-foreground hover:bg-primary/90"
+                    submitting || !passwordValid ? "bg-primary/60 text-primary-foreground cursor-not-allowed" : "bg-primary text-primary-foreground hover:bg-primary/90"
                   }`}
                 >
                   {submitting ? (

@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import { getPasswordChecks, isPasswordValid } from "../../utils/validators";
 
 export default function SignUpPage() {
   const [name, setName] = useState("");
@@ -13,7 +14,8 @@ export default function SignUpPage() {
 
   const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), [email]);
   const nameValid = useMemo(() => name.trim().length >= 2, [name]);
-  const passwordValid = useMemo(() => password.length >= 6, [password]);
+  const passwordValid = useMemo(() => isPasswordValid(password), [password]);
+  const checks = useMemo(() => getPasswordChecks(password), [password]);
   const formValid = emailValid && nameValid && passwordValid;
 
   async function handleSubmit(e: React.FormEvent) {
@@ -118,7 +120,7 @@ export default function SignUpPage() {
                     className={`mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 ${
                       touched.password && !passwordValid ? "border-red-500/60 focus:ring-red-500/30" : "border-border/30 focus:ring-primary/30"
                     }`}
-                    placeholder="Minimum 6 characters"
+                    placeholder="Start with uppercase, include a number & a symbol"
                     aria-label="Password"
                     aria-invalid={touched.password && !passwordValid}
                   />
@@ -129,11 +131,27 @@ export default function SignUpPage() {
                     aria-pressed={show}
                     aria-label={show ? "Hide password" : "Show password"}
                   >
-                    {show ? "Hide" : "Show"}
+                    {show ? (
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12c2.5-5 7-7.5 9.75-7.5S19.5 7 21.75 12c-1.02 2.27-2.63 4.04-4.53 5.23" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.88 9.88A3 3 0 0012 15a3 3 0 002.12-.88" />
+                      </svg>
+                    ) : (
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12c2.5-5 7-7.5 9.75-7.5S19.5 7 21.75 12c-2.25 5-6.75 7.5-9.75 7.5S4.75 17 2.25 12z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    )}
                   </button>
-                  {touched.password && !passwordValid && (
-                    <div className="mt-1 text-xs text-red-500">Password must be at least 6 characters.</div>
-                  )}
+                  <div className="mt-2">
+                    <ul className="text-xs space-y-1">
+                      <li className={`${checks.firstUppercase ? "text-emerald-500" : "text-red-500"}`}>• First letter is uppercase</li>
+                      <li className={`${checks.hasNumber ? "text-emerald-500" : "text-red-500"}`}>• Contains at least one number</li>
+                      <li className={`${checks.hasSymbol ? "text-emerald-500" : "text-red-500"}`}>• Contains at least one symbol</li>
+                      <li className={`${checks.minLength ? "text-emerald-500" : "text-red-500"}`}>• Minimum 6 characters</li>
+                    </ul>
+                  </div>
                 </label>
 
                 <button

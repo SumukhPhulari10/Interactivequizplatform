@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "../components/auth/AuthProvider";
 
@@ -11,6 +11,29 @@ export default function ProfilePage() {
   const [branch, setBranch] = useState("Electrical");
   const [bio, setBio] = useState("3rd year engineering student. Loves circuits & embedded systems.");
   const [email] = useState("alex.johnson@university.edu");
+
+  // Load saved profile (per-username) on client
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const key = `profile:${user.name}`;
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const saved = JSON.parse(raw) as { name?: string; branch?: string; bio?: string };
+        if (saved.name) setName(saved.name);
+        if (saved.branch) setBranch(saved.branch);
+        if (saved.bio) setBio(saved.bio);
+      }
+    } catch {}
+  }, [user]);
+
+  // Compute initials from current name
+  const initials = useMemo(() => {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return "";
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }, [name]);
 
   if (!user) {
     return (
@@ -34,9 +57,9 @@ export default function ProfilePage() {
           <div className="flex items-center gap-4">
             <div className="relative">
               <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gradient-to-br from-primary/30 to-accent/20 flex items-center justify-center text-xl sm:text-2xl font-semibold text-primary">
-                AJ
+                {initials}
               </div>
-              <span className="absolute -bottom-1 -right-1 rounded-full bg-surface/80 border border-border/30 px-2 py-1 text-xs text-muted-foreground">Student</span>
+              <span className="absolute -bottom-1 -right-1 rounded-full bg-surface/80 border border-border/30 px-2 py-1 text-xs text-muted-foreground">{user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Student"}</span>
             </div>
             <div>
               <h1 className="text-2xl font-semibold">{name}</h1>
@@ -90,6 +113,16 @@ export default function ProfilePage() {
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
+                    // Save to localStorage per-username
+                    try {
+                      if (user) {
+                        const key = `profile:${user.name}`;
+                        localStorage.setItem(
+                          key,
+                          JSON.stringify({ name, branch, bio })
+                        );
+                      }
+                    } catch {}
                     setEditing(false);
                   }}
                   className="mt-4 space-y-4"
