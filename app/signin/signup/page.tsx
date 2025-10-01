@@ -67,57 +67,61 @@ export default function SignUpPage() {
 
         <div className="flex items-center justify-center px-5 py-10 md:py-0">
           <div className="w-full max-w-md">
-            <div className="rounded-xl bg-surface/80 border border-border/30 p-6 shadow-lg">
+            <div className="rounded-2xl bg-background/90 dark:bg-black/80 border border-border/30 p-6 md:p-8 shadow-xl">
               <h2 className="text-2xl font-semibold">Sign up</h2>
               <p className="mt-1 text-sm text-muted-foreground">Create a new account to get started.</p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
-                <label className="block">
+                <label className="block relative group/field">
                   <span className="text-sm text-muted-foreground">Full name</span>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     onBlur={() => setTouched((t) => ({ ...t, name: true }))}
-                    className={`mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 ${
+                    className={`mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 ${
                       touched.name && !nameValid ? "border-red-500/60 focus:ring-red-500/30" : "border-border/30 focus:ring-primary/30"
                     }`}
                     placeholder="Alex Johnson"
                     aria-label="Full name"
                     aria-invalid={touched.name && !nameValid}
                   />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
                   {touched.name && !nameValid && (
                     <div className="mt-1 text-xs text-red-500">Enter your name.</div>
                   )}
                 </label>
 
-                <label className="block">
+                <label className="block relative group/field">
                   <span className="text-sm text-muted-foreground">Email</span>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onBlur={() => setTouched((t) => ({ ...t, email: true }))}
-                    className={`mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 ${
+                    className={`mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 ${
                       touched.email && !emailValid ? "border-red-500/60 focus:ring-red-500/30" : "border-border/30 focus:ring-primary/30"
                     }`}
                     placeholder="you@example.edu"
                     aria-label="Email"
                     aria-invalid={touched.email && !emailValid}
                   />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
                   {touched.email && !emailValid && (
                     <div className="mt-1 text-xs text-red-500">Enter a valid email.</div>
                   )}
                 </label>
 
-                <label className="block relative">
+                <label className="block relative group/field">
                   <span className="text-sm text-muted-foreground">Password</span>
                   <input
                     type={show ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-                    className={`mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 ${
+                    className={`mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 ${
                       touched.password && !passwordValid ? "border-red-500/60 focus:ring-red-500/30" : "border-border/30 focus:ring-primary/30"
                     }`}
                     placeholder="Start with uppercase, include a number & a symbol"
@@ -144,6 +148,8 @@ export default function SignUpPage() {
                       </svg>
                     )}
                   </button>
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
                   <div className="mt-2">
                     <ul className="text-xs space-y-1">
                       <li className={`${checks.firstUppercase ? "text-emerald-500" : "text-red-500"}`}>• First letter is uppercase</li>
@@ -157,10 +163,10 @@ export default function SignUpPage() {
                 <button
                   type="submit"
                   disabled={submitting || !formValid}
-                  className={`w-full mt-1 inline-flex justify-center items-center gap-2 rounded-md px-4 py-2 text-sm font-medium shadow ${
+                  className={`group/btn relative w-full mt-1 inline-flex justify-center items-center gap-2 rounded-md px-4 py-2 text-sm font-medium shadow ${
                     submitting || !formValid
-                      ? "bg-primary/60 text-primary-foreground cursor-not-allowed"
-                      : "bg-primary text-primary-foreground hover:bg-primary/90"
+                      ? "bg-gradient-to-br from-primary/70 to-primary/50 text-primary-foreground cursor-not-allowed"
+                      : "bg-gradient-to-br from-black to-neutral-700 text-white dark:from-zinc-900 dark:to-zinc-900"
                   }`}
                 >
                   {submitting ? (
@@ -172,8 +178,11 @@ export default function SignUpPage() {
                       Creating account...
                     </>
                   ) : (
-                    "Create account"
+                    <>Create account</>
                   )}
+                  {/* BottomGradient lines */}
+                  <span className="pointer-events-none absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
                 </button>
               </form>
 
@@ -185,17 +194,19 @@ export default function SignUpPage() {
 
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <button
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border/30 bg-background px-3 py-2 text-sm hover:shadow-sm"
+                  className="group/btn relative inline-flex w-full items-center justify-start gap-2 rounded-md border border-border/30 bg-gray-50 px-3 py-2 text-sm text-black hover:shadow-sm dark:bg-zinc-900"
                   aria-label="Continue with Google"
                 >
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
                     <path d="M21 12.3a9 9 0 10-9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   Google
+                  <span className="pointer-events-none absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
                 </button>
 
                 <button
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border/30 bg-background px-3 py-2 text-sm hover:shadow-sm"
+                  className="group/btn relative inline-flex w-full items-center justify-start gap-2 rounded-md border border-border/30 bg-gray-50 px-3 py-2 text-sm text-black hover:shadow-sm dark:bg-zinc-900"
                   aria-label="Continue with GitHub"
                 >
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -203,6 +214,8 @@ export default function SignUpPage() {
                     <circle cx="12" cy="14" r="6" stroke="currentColor" strokeWidth="1.5" />
                   </svg>
                   GitHub
+                  <span className="pointer-events-none absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
                 </button>
               </div>
 
