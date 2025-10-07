@@ -72,56 +72,56 @@ export default function SignUpPage() {
               <p className="mt-1 text-sm text-muted-foreground">Create a new account to get started.</p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
-                <label className="block relative group/field">
+                <label className="block relative pb-3">
                   <span className="text-sm text-muted-foreground">Full name</span>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     onBlur={() => setTouched((t) => ({ ...t, name: true }))}
-                    className={`mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 ${
+                    className={`peer mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 ${
                       touched.name && !nameValid ? "border-red-500/60 focus:ring-red-500/30" : "border-border/30 focus:ring-primary/30"
                     }`}
                     placeholder="Alex Johnson"
                     aria-label="Full name"
                     aria-invalid={touched.name && !nameValid}
                   />
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
-                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 bottom-0 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus:opacity-100" />
                   {touched.name && !nameValid && (
                     <div className="mt-1 text-xs text-red-500">Enter your name.</div>
                   )}
                 </label>
 
-                <label className="block relative group/field">
+                <label className="block relative pb-2">
                   <span className="text-sm text-muted-foreground">Email</span>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onBlur={() => setTouched((t) => ({ ...t, email: true }))}
-                    className={`mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 ${
+                    className={`peer mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 ${
                       touched.email && !emailValid ? "border-red-500/60 focus:ring-red-500/30" : "border-border/30 focus:ring-primary/30"
                     }`}
                     placeholder="you@example.edu"
                     aria-label="Email"
                     aria-invalid={touched.email && !emailValid}
                   />
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
-                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus:opacity-100" />
                   {touched.email && !emailValid && (
                     <div className="mt-1 text-xs text-red-500">Enter a valid email.</div>
                   )}
                 </label>
 
-                <label className="block relative group/field">
+                <label className="block relative pb-2">
                   <span className="text-sm text-muted-foreground">Password</span>
                   <input
                     type={show ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-                    className={`mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 ${
+                    className={`peer mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 ${
                       touched.password && !passwordValid ? "border-red-500/60 focus:ring-red-500/30" : "border-border/30 focus:ring-primary/30"
                     }`}
                     placeholder="Start with uppercase, include a number & a symbol"
@@ -148,8 +148,8 @@ export default function SignUpPage() {
                       </svg>
                     )}
                   </button>
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
-                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus:opacity-100" />
                   <div className="mt-2">
                     <ul className="text-xs space-y-1">
                       <li className={`${checks.firstUppercase ? "text-emerald-500" : "text-red-500"}`}>• First letter is uppercase</li>

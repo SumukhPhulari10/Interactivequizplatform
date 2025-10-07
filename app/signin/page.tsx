@@ -93,35 +93,33 @@ export default function SignInPage() {
                 </label>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
-                <label className="block relative group/field">
+                <label className="block relative pb-3">
                   <span className="text-sm text-muted-foreground">Username</span>
                   <input
                     type="text"
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="peer mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 focus:ring-primary/30"
                     placeholder="your username"
-                    aria-label="Username"
                   />
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
-                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 bottom-0 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus:opacity-100" />
                 </label>
 
-                <label className="block relative group/field">
+                <label className="block relative pb-2">
                   <span className="text-sm text-muted-foreground">Password</span>
                   <input
                     type={show ? "text" : "password"}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="peer mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 focus:ring-primary/30"
                     placeholder="Start with uppercase, include a number & a symbol"
                     aria-label="Password"
                   />
                   <button
                     type="button"
-                    onClick={() => setShow((s) => !s)}
                     className="absolute right-2 top-9 text-xs text-muted-foreground hover:text-foreground"
                     aria-pressed={show}
                     aria-label={show ? "Hide password" : "Show password"}
