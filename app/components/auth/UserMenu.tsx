@@ -22,6 +22,9 @@ export default function UserMenu() {
       <Link href={dashboard} className="px-3 py-2 rounded-md border border-input text-sm">
         {roleLabel} Dashboard
       </Link>
+      <Link href="/profile/preferences" className="px-3 py-2 rounded-md border border-input text-sm">
+        Avatar & Theme
+      </Link>
       <button onClick={logout} className="px-3 py-2 rounded-md border border-input text-sm">Sign out</button>
     </div>
   );

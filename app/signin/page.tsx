@@ -29,9 +29,27 @@ export default function SignInPage() {
       setError("Password must start with an uppercase letter, include a number and a symbol (min 6 chars).");
       return;
     }
-    const ok = await login(username.trim(), password, role);
+    let uname = username.trim();
+    try {
+      const isEmail = /@/.test(uname);
+      if (isEmail) {
+        const mapped = localStorage.getItem(`userByEmail:${uname.toLowerCase()}`);
+        if (mapped) uname = mapped;
+      }
+    } catch {}
+    const ok = await login(uname, password, role);
     setSubmitting(false);
     if (ok) {
+      try {
+        const key = `profile:${uname}`;
+        const existing = localStorage.getItem(key);
+        if (!existing) {
+          localStorage.setItem(
+            key,
+            JSON.stringify({ name: uname, email: "", branch: "Electrical", bio: "" })
+          );
+        }
+      } catch {}
       const dest = role === "admin" ? "/admin" : role === "teacher" ? "/teacher" : "/student";
       router.push(dest);
     } else {
@@ -108,17 +126,17 @@ export default function SignInPage() {
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
                 <label className="block relative pb-3">
-                  <span className="text-sm text-muted-foreground">Username</span>
+                  <span className="text-sm text-muted-foreground">Username or Email</span>
                   <input
                     type="text"
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     className="peer mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm placeholder:text-muted-foreground transition-all focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    placeholder="your username"
+                    placeholder="your username or email"
                   />
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus:opacity-100" />
-                  <span className="pointer-events-none absolute inset-x-10 bottom-0 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus-visible:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 bottom-0 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus-visible:opacity-100" />
                 </label>
 
                 <label className="block relative pb-2">

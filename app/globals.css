@@ -80,3 +80,44 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-sans);
 }
+
+/* Reduce accidental text selection and tap highlight; keep inputs clickable */
+html, body {
+  cursor: default;
+}
+body {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+button, a { cursor: pointer; }
+input, textarea, select, button, a, label, [contenteditable="true"] {
+  user-select: text;
+}
+
+/* Accent theme variants (adjust --accent hue only) */
+:root {
+  --accent: 240 4.8% 95.9%;
+}
+
+.accent-blue {
+  --accent: 217 91% 60%;
+}
+.accent-rose {
+  --accent: 346 77% 60%;
+}
+.accent-violet {
+  --accent: 258 90% 66%;
+}
+.accent-emerald {
+  --accent: 152 76% 40%;
+}
+.accent-orange {
+  --accent: 24 94% 50%;
+}
+
+/* Small color dots for previews */
+.swatch-blue { background-color: oklch(from hsl(217 91% 60%) l c h); }
+.swatch-rose { background-color: oklch(from hsl(346 77% 60%) l c h); }
+.swatch-violet { background-color: oklch(from hsl(258 90% 66%) l c h); }
+.swatch-emerald { background-color: oklch(from hsl(152 76% 40%) l c h); }
+.swatch-orange { background-color: oklch(from hsl(24 94% 50%) l c h); }

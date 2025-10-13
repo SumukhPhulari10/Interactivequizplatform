@@ -2,15 +2,20 @@
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../../components/auth/AuthProvider";
 import { getPasswordChecks, isPasswordValid } from "../../utils/validators";
 
 export default function SignUpPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [branch, setBranch] = useState("Electrical");
   const [show, setShow] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [touched, setTouched] = useState<{ name: boolean; email: boolean; password: boolean }>({ name: false, email: false, password: false });
+  const { login } = useAuth();
+  const router = useRouter();
 
   const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), [email]);
   const nameValid = useMemo(() => name.trim().length >= 2, [name]);
@@ -24,8 +29,30 @@ export default function SignUpPage() {
     if (!formValid) return;
     setSubmitting(true);
     try {
-      await new Promise((r) => setTimeout(r, 800));
-      console.log({ name, email, password });
+      await new Promise((r) => setTimeout(r, 400));
+      const username = name.trim();
+      const ok = await login(username, password, "student");
+      if (ok) {
+        try {
+          const key = `profile:${username}`;
+          const existing = localStorage.getItem(key);
+          const base = existing ? JSON.parse(existing) : {};
+          localStorage.setItem(
+            key,
+            JSON.stringify({
+              name: username,
+              email: email.trim(),
+              branch: branch || base.branch || "Electrical",
+              bio: base.bio ?? "",
+            })
+          );
+          // Store email -> username mapping for sign-in by email
+          if (email.trim()) {
+            localStorage.setItem(`userByEmail:${email.trim().toLowerCase()}`, username);
+          }
+        } catch {}
+        router.push("/student");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -86,8 +113,8 @@ export default function SignUpPage() {
                     aria-label="Full name"
                     aria-invalid={touched.name && !nameValid}
                   />
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus:opacity-100" />
-                  <span className="pointer-events-none absolute inset-x-10 bottom-0 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus-visible:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 bottom-0 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus-visible:opacity-100" />
                   {touched.name && !nameValid && (
                     <div className="mt-1 text-xs text-red-500">Enter your name.</div>
                   )}
@@ -107,11 +134,32 @@ export default function SignUpPage() {
                     aria-label="Email"
                     aria-invalid={touched.email && !emailValid}
                   />
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus:opacity-100" />
-                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus-visible:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus-visible:opacity-100" />
                   {touched.email && !emailValid && (
                     <div className="mt-1 text-xs text-red-500">Enter a valid email.</div>
                   )}
+                </label>
+
+                <label className="block relative pb-2">
+                  <span className="text-sm text-muted-foreground">Branch</span>
+                  <select
+                    value={branch}
+                    onChange={(e) => setBranch(e.target.value)}
+                    className="mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    aria-label="Branch"
+                  >
+                    <option value="Electrical">Electrical</option>
+                    <option value="Mechanical">Mechanical</option>
+                    <option value="Computer">Computer</option>
+                    <option value="Civil">Civil</option>
+                    <option value="Chemical">Chemical</option>
+                    <option value="AI & ML">AI & ML</option>
+                    <option value="Industrial">Industrial</option>
+                    <option value="Materials">Materials</option>
+                  </select>
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus-visible:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus-visible:opacity-100" />
                 </label>
 
                 <label className="block relative pb-2">
@@ -148,8 +196,8 @@ export default function SignUpPage() {
                       </svg>
                     )}
                   </button>
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus:opacity-100" />
-                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus-visible:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus-visible:opacity-100" />
                   <div className="mt-2">
                     <ul className="text-xs space-y-1">
                       <li className={`${checks.firstUppercase ? "text-emerald-500" : "text-red-500"}`}>• First letter is uppercase</li>

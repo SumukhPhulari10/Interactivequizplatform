@@ -39,6 +39,13 @@ export default function RootLayout({
         } else {
           document.documentElement.classList.remove('dark');
         }
+        // Accent handling
+        var accent = localStorage.getItem('accent');
+        var accents = ['accent-blue','accent-rose','accent-violet','accent-emerald','accent-orange'];
+        for (var i=0;i<accents.length;i++) { document.documentElement.classList.remove(accents[i]); }
+        if (accent && accents.indexOf(accent) !== -1) {
+          document.documentElement.classList.add(accent);
+        }
       } catch (e) {}
     })();
   `;

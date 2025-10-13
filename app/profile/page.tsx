@@ -11,6 +11,7 @@ export default function ProfilePage() {
   const [branch, setBranch] = useState("Electrical");
   const [bio, setBio] = useState("3rd year engineering student. Loves circuits & embedded systems.");
   const [email, setEmail] = useState("alex.johnson@university.edu");
+  const [avatarId, setAvatarId] = useState<string | null>(null);
 
   // Load saved profile (per-username) on client
   useEffect(() => {
@@ -25,6 +26,13 @@ export default function ProfilePage() {
         if (saved.bio) setBio(saved.bio);
         if (saved.email) setEmail(saved.email);
       }
+      // appearance (avatar)
+      const aKey = `appearance:${user.name}`;
+      const aRaw = localStorage.getItem(aKey);
+      if (aRaw) {
+        const appearance = JSON.parse(aRaw) as { avatarId?: string };
+        if (appearance.avatarId) setAvatarId(appearance.avatarId);
+      }
     } catch {}
   }, [user]);
 
@@ -35,6 +43,18 @@ export default function ProfilePage() {
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
     return (parts[0][0] + parts[1][0]).toUpperCase();
   }, [name]);
+
+  const AVATARS = useMemo(() => ([
+    { id: "spark-bot", glyph: "🤖" },
+    { id: "cool-cat", glyph: "😼" },
+    { id: "nerd", glyph: "🤓" },
+    { id: "rocket", glyph: "🚀" },
+    { id: "unicorn", glyph: "🦄" },
+    { id: "brain", glyph: "🧠" },
+    { id: "star", glyph: "⭐" },
+    { id: "fire", glyph: "🔥" },
+  ]), []);
+  const avatarGlyph = useMemo(() => AVATARS.find(a => a.id === avatarId)?.glyph ?? null, [AVATARS, avatarId]);
 
   if (!user) {
     return (
@@ -58,7 +78,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-4">
             <div className="relative">
               <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gradient-to-br from-primary/30 to-accent/20 flex items-center justify-center text-xl sm:text-2xl font-semibold text-primary">
-                {initials}
+                {avatarGlyph ? avatarGlyph : initials}
               </div>
               <span className="absolute -bottom-1 -right-1 rounded-full bg-surface/80 border border-border/30 px-2 py-1 text-xs text-muted-foreground">{user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Student"}</span>
             </div>
@@ -135,8 +155,8 @@ export default function ProfilePage() {
                       onChange={(e) => setName(e.target.value)}
                       className="peer mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                     />
-                    <span className="pointer-events-none absolute inset-x-0 bottom-0 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100 peer-focus:opacity-100" />
-                    <span className="pointer-events-none absolute inset-x-10 bottom-0 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100 peer-focus:opacity-100" />
+                    <span className="pointer-events-none absolute inset-x-0 bottom-0 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100 peer-focus-visible:opacity-100" />
+                    <span className="pointer-events-none absolute inset-x-10 bottom-0 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100 peer-focus-visible:opacity-100" />
                   </label>
 
                   <label className="group/field block relative pb-3">
