@@ -47,7 +47,56 @@ const HARD: Question[] = [
   { q: "Which language family does Hungarian belong to?", options: ["Indo-European", "Uralic", "Altaic", "Semitic"], a: 1 },
 ];
 
-type LevelKey = "simple" | "medium" | "hard";
+// Engineering fields mix: Mechanical, Civil, Electrical, CS, etc.
+const ENG_EASY: Question[] = [
+  { q: "In mechanics, unit of force?", options: ["Joule", "Newton", "Pascal", "Watt"], a: 1 },
+  { q: "Concrete primarily gains strength due to?", options: ["Hydration", "Oxidation", "Combustion", "Fermentation"], a: 0 },
+  { q: "Binary of decimal 5?", options: ["100", "101", "110", "111"], a: 1 },
+  { q: "Ohm's law relates V, I and?", options: ["Capacitance", "Resistance", "Inductance", "Power"], a: 1 },
+  { q: "Which CAD term means removing material?", options: ["Extrude", "Chamfer", "Fillet", "Cut"], a: 3 },
+  { q: "Basic logic gate that outputs 1 only if all inputs are 1?", options: ["OR", "XOR", "AND", "NAND"], a: 2 },
+  { q: "Beam that is fixed at one end?", options: ["Simply supported", "Cantilever", "Overhanging", "Continuous"], a: 1 },
+  { q: "CPU stands for?", options: ["Central Processing Unit", "Central Program Unit", "Compute Process Unit", "Control Program Unit"], a: 0 },
+  { q: "Unit of electric power?", options: ["Joule", "Watt", "Volt", "Ampere"], a: 1 },
+  { q: "Material property: resistance to scratching?", options: ["Ductility", "Hardness", "Toughness", "Elasticity"], a: 1 },
+];
+
+const ENG_MEDIUM: Question[] = [
+  { q: "Reynolds number helps predict?", options: ["Flow regime", "Heat transfer area", "Pipe diameter", "Phase change"], a: 0 },
+  { q: "Which test measures concrete compressive strength?", options: ["Slump test", "Cube test", "Rebound hammer", "Core cutter"], a: 1 },
+  { q: "Time complexity of binary search (sorted array)?", options: ["O(n)", "O(log n)", "O(n log n)", "O(1)"], a: 1 },
+  { q: "Diode primarily allows current to flow in?", options: ["Both directions", "Forward bias", "Reverse bias", "Alternately"], a: 1 },
+  { q: "Euler's formula in columns relates load to?", options: ["Length", "Area", "Density", "Poisson's ratio"], a: 0 },
+  { q: "Normalized database reduces?", options: ["Redundancy", "Indexes", "Queries", "Transactions"], a: 0 },
+  { q: "Shear force is max at?", options: ["Free end", "Supports", "Mid-span", "Anywhere"], a: 1 },
+  { q: "Nyquist rate relates to?", options: ["Sampling", "Modulation", "Amplification", "Rectification"], a: 0 },
+  { q: "PID controller 'I' term reduces?", options: ["Overshoot", "Steady-state error", "Rise time", "Bandwidth"], a: 1 },
+  { q: "HTTP status for 'Not Found'?", options: ["200", "301", "404", "500"], a: 2 },
+];
+
+const ENG_HARD: Question[] = [
+  { q: "For a simply supported beam with UDL, max bending moment at?", options: ["Supports", "Quarter span", "Mid-span", "Near free end"], a: 2 },
+  { q: "Zener diode operates in?", options: ["Forward conduction", "Breakdown region", "Cut-off", "Saturation"], a: 1 },
+  { q: "AVL tree rotation ensures?", options: ["Heap property", "Balance factor bounds", "Topological order", "Shortest path"], a: 1 },
+  { q: "Bernoulli equation assumes?", options: ["Compressible viscous flow", "Incompressible inviscid steady flow", "Unsteady flow", "Rotational flow"], a: 1 },
+  { q: "Slenderness ratio is?", options: ["Area/Length", "Length/Radius of gyration", "Stress/Strain", "Load/Area"], a: 1 },
+  { q: "Maximum power transfer when load resistance equals?", options: ["0", "Infinite", "Source resistance", "Twice source resistance"], a: 2 },
+  { q: "Page replacement algorithm that uses counter for recency?", options: ["FIFO", "LRU", "LFU", "Clock"], a: 1 },
+  { q: "Fourier transform converts time domain to?", options: ["Space", "Frequency", "Probability", "Impulse"], a: 1 },
+  { q: "Mohr's circle is used for?", options: ["Thermal analysis", "Stress transformation", "Fluid statics", "Soil bearing"], a: 1 },
+  { q: "SVM uses which concept for classification?", options: ["Decision tree", "Hyperplane margin maximization", "Entropy minimization", "Random walk"], a: 1 },
+];
+
+type LevelKey = "simple" | "medium" | "hard" | "eng_easy" | "eng_medium" | "eng_hard";
+
+const QUESTION_BANKS: Record<LevelKey, Question[]> = {
+  simple: EASY,
+  medium: MEDIUM,
+  hard: HARD,
+  eng_easy: ENG_EASY,
+  eng_medium: ENG_MEDIUM,
+  eng_hard: ENG_HARD,
+};
 
 export default function QuizzesPage(): ReactElement {
   const [active, setActive] = useState<LevelKey | null>(null);
@@ -56,16 +105,13 @@ export default function QuizzesPage(): ReactElement {
   const [showResults, setShowResults] = useState<boolean>(false);
 
   const questions = useMemo<Question[]>(() => {
-    if (active === "simple") return EASY;
-    if (active === "medium") return MEDIUM;
-    if (active === "hard") return HARD;
-    return [];
+    return active ? QUESTION_BANKS[active] : [];
   }, [active]);
 
   function start(level: LevelKey) {
     setActive(level);
     setIndex(0);
-    setAnswers(Array(10).fill(-1));
+    setAnswers(Array(QUESTION_BANKS[level].length).fill(-1));
     setShowResults(false);
   }
 
@@ -102,7 +148,7 @@ export default function QuizzesPage(): ReactElement {
           <>
             <header className="mb-6">
               <h1 className="text-2xl sm:text-3xl font-bold">Quizzes</h1>
-              <p className="mt-2 text-sm text-muted-foreground">Pick a general knowledge level to get started.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Pick a set to start practicing.</p>
             </header>
             <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <article className="rounded-xl border border-border/40 bg-surface p-5 flex flex-col justify-between">
@@ -136,6 +182,39 @@ export default function QuizzesPage(): ReactElement {
                 <div className="mt-4 flex items-center justify-between">
                   <span className="rounded-full px-3 py-1 text-xs bg-muted/10">Hard</span>
                   <button onClick={() => start("hard")} className="inline-flex items-center px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm">Start</button>
+                </div>
+              </article>
+              <article className="rounded-xl border border-border/40 bg-surface p-5 flex flex-col justify-between">
+                <div>
+                  <div className="text-xs text-muted-foreground">Engineering Fields Mix</div>
+                  <h2 className="mt-1 text-lg font-semibold">Engineering Mix — Easy</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">Basics across Mechanical, Civil, Electrical, CS. 10 questions.</p>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="rounded-full px-3 py-1 text-xs bg-muted/10">Easy</span>
+                  <button onClick={() => start("eng_easy")} className="inline-flex items-center px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm">Start</button>
+                </div>
+              </article>
+              <article className="rounded-xl border border-border/40 bg-surface p-5 flex flex-col justify-between">
+                <div>
+                  <div className="text-xs text-muted-foreground">Engineering Fields Mix</div>
+                  <h2 className="mt-1 text-lg font-semibold">Engineering Mix — Medium</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">Core concepts mixed set. 10 questions.</p>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="rounded-full px-3 py-1 text-xs bg-muted/10">Medium</span>
+                  <button onClick={() => start("eng_medium")} className="inline-flex items-center px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm">Start</button>
+                </div>
+              </article>
+              <article className="rounded-xl border border-border/40 bg-surface p-5 flex flex-col justify-between">
+                <div>
+                  <div className="text-xs text-muted-foreground">Engineering Fields Mix</div>
+                  <h2 className="mt-1 text-lg font-semibold">Engineering Mix — Hard</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">Advanced, exam-style problems. 10 questions.</p>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="rounded-full px-3 py-1 text-xs bg-muted/10">Hard</span>
+                  <button onClick={() => start("eng_hard")} className="inline-flex items-center px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm">Start</button>
                 </div>
               </article>
             </section>

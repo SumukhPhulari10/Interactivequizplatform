@@ -7,6 +7,7 @@ type User = { name: string; role: Role };
 type AuthContextType = {
   user: User | null;
   login: (username: string, password: string, role: Role) => Promise<boolean>;
+  guestLogin: (role: Role) => Promise<boolean>;
   logout: () => void;
   hasRole: (roles: Role | Role[]) => boolean;
 };
@@ -44,6 +45,17 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     return true;
   }
 
+  async function guestLogin(role: Role) {
+    const u: User = { name: "Guest", role };
+    setUser(u);
+    if (isClient) {
+      try {
+        localStorage.setItem("authUser", JSON.stringify(u));
+      } catch {}
+    }
+    return true;
+  }
+
   function logout() {
     setUser(null);
     if (isClient) {
@@ -59,7 +71,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     return allowed.includes(user.role);
   }
 
-  return <AuthContext.Provider value={{ user, login, logout, hasRole }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, login, guestLogin, logout, hasRole }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

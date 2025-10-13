@@ -10,7 +10,7 @@ export default function ProfilePage() {
   const [name, setName] = useState("Alex Johnson");
   const [branch, setBranch] = useState("Electrical");
   const [bio, setBio] = useState("3rd year engineering student. Loves circuits & embedded systems.");
-  const [email] = useState("alex.johnson@university.edu");
+  const [email, setEmail] = useState("alex.johnson@university.edu");
 
   // Load saved profile (per-username) on client
   useEffect(() => {
@@ -19,10 +19,11 @@ export default function ProfilePage() {
       const key = `profile:${user.name}`;
       const raw = localStorage.getItem(key);
       if (raw) {
-        const saved = JSON.parse(raw) as { name?: string; branch?: string; bio?: string };
+        const saved = JSON.parse(raw) as { name?: string; branch?: string; bio?: string; email?: string };
         if (saved.name) setName(saved.name);
         if (saved.branch) setBranch(saved.branch);
         if (saved.bio) setBio(saved.bio);
+        if (saved.email) setEmail(saved.email);
       }
     } catch {}
   }, [user]);
@@ -119,7 +120,7 @@ export default function ProfilePage() {
                         const key = `profile:${user.name}`;
                         localStorage.setItem(
                           key,
-                          JSON.stringify({ name, branch, bio })
+                          JSON.stringify({ name, branch, bio, email })
                         );
                       }
                     } catch {}
@@ -127,17 +128,36 @@ export default function ProfilePage() {
                   }}
                   className="mt-4 space-y-4"
                 >
-                  <label className="block">
+                  <label className="group/field block relative pb-3">
                     <span className="text-sm text-muted-foreground">Full name</span>
-                    <input value={name} onChange={(e) => setName(e.target.value)} className="mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                    <input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="peer mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                    <span className="pointer-events-none absolute inset-x-0 bottom-0 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100 peer-focus:opacity-100" />
+                    <span className="pointer-events-none absolute inset-x-10 bottom-0 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100 peer-focus:opacity-100" />
                   </label>
 
-                  <label className="block">
+                  <label className="group/field block relative pb-3">
+                    <span className="text-sm text-muted-foreground">Email</span>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="peer mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      placeholder="you@example.com"
+                    />
+                    <span className="pointer-events-none absolute inset-x-0 bottom-0 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100 peer-focus:opacity-100" />
+                    <span className="pointer-events-none absolute inset-x-10 bottom-0 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100 peer-focus:opacity-100" />
+                  </label>
+
+                  <label className="group/field block relative pb-3">
                     <span className="text-sm text-muted-foreground">Branch</span>
                     <select
                       value={branch}
                       onChange={(e) => setBranch(e.target.value)}
-                      className="mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className="peer mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                       aria-label="Branch"
                     >
                       <option value="Electrical">Electrical</option>
@@ -149,11 +169,20 @@ export default function ProfilePage() {
                       <option value="Industrial">Industrial</option>
                       <option value="Materials">Materials</option>
                     </select>
+                    <span className="pointer-events-none absolute inset-x-0 bottom-0 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100 peer-focus:opacity-100" />
+                    <span className="pointer-events-none absolute inset-x-10 bottom-0 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100 peer-focus:opacity-100" />
                   </label>
 
-                  <label className="block">
+                  <label className="group/field block relative pb-3">
                     <span className="text-sm text-muted-foreground">Bio</span>
-                    <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={4} className="mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                    <textarea
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      rows={4}
+                      className="peer mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                    <span className="pointer-events-none absolute inset-x-0 bottom-0 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100 peer-focus:opacity-100" />
+                    <span className="pointer-events-none absolute inset-x-10 bottom-0 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100 peer-focus:opacity-100" />
                   </label>
 
                   <div className="flex gap-3">

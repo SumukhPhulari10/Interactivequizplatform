@@ -12,8 +12,9 @@ export default function SignInPage() {
   const [show, setShow] = useState(false);
   const [remember, setRemember] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [guestSubmitting, setGuestSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { login } = useAuth();
+  const { login, guestLogin } = useAuth();
   const [role, setRole] = useState<"student" | "teacher" | "admin">("student");
   const router = useRouter();
   const passwordValid = useMemo(() => isPasswordValid(password), [password]);
@@ -35,6 +36,19 @@ export default function SignInPage() {
       router.push(dest);
     } else {
       setError("Enter username and password");
+    }
+  }
+
+  async function handleGuestContinue() {
+    setError(null);
+    setGuestSubmitting(true);
+    const ok = await guestLogin(role);
+    setGuestSubmitting(false);
+    if (ok) {
+      const dest = role === "admin" ? "/admin" : role === "teacher" ? "/teacher" : "/student";
+      router.push(dest);
+    } else {
+      setError("Could not start guest session. Please try again.");
     }
   }
 
@@ -222,6 +236,43 @@ export default function SignInPage() {
                   <span className="pointer-events-none absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
                   <span className="pointer-events-none absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
                 </button>
+              </div>
+
+              <div className="mt-5 flex items-center gap-3">
+                <div className="flex-1 h-px bg-border/30" />
+                <div className="text-xs text-muted-foreground">or continue as</div>
+                <div className="flex-1 h-px bg-border/30" />
+              </div>
+
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={handleGuestContinue}
+                  disabled={guestSubmitting}
+                  className={`group/btn relative w-full inline-flex justify-center items-center gap-2 rounded-md px-4 py-2 text-sm font-medium shadow ${
+                    guestSubmitting
+                      ? "bg-gradient-to-br from-primary/70 to-primary/50 text-primary-foreground cursor-not-allowed"
+                      : "bg-gradient-to-br from-zinc-800 to-zinc-900 text-white dark:from-zinc-900 dark:to-black"
+                  }`}
+                  aria-label="Continue as Guest"
+                >
+                  {guestSubmitting ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                      </svg>
+                      Starting guest session...
+                    </>
+                  ) : (
+                    <>Continue as Guest ({role})</>
+                  )}
+                  <span className="pointer-events-none absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
+                </button>
+                <p className="mt-2 text-xs text-muted-foreground text-center">
+                  Guest mode won’t save progress. Create an account anytime to keep your results.
+                </p>
               </div>
 
               <div className="mt-4 text-center text-sm">
