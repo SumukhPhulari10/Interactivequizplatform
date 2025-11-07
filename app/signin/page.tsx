@@ -10,7 +10,6 @@ import { supabase } from "@/lib/supabaseClient";
 export default function SignInPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [show, setShow] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -87,7 +86,7 @@ export default function SignInPage() {
             </div>
           </div>
 
-          <div className="text-xs text-muted-foreground">© {new Date().getFullYear()} EngiQuiz</div>
+          <div className="text-xs text-muted-foreground"> {new Date().getFullYear()} EngiQuiz</div>
         </div>
 
         <div className="flex items-center justify-center px-5 py-10 md:py-0">
@@ -114,7 +113,7 @@ export default function SignInPage() {
                 <label className="block relative pb-2">
                   <span className="text-sm text-muted-foreground">Password</span>
                   <input
-                    type={show ? "text" : "password"}
+                    type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -122,27 +121,6 @@ export default function SignInPage() {
                     placeholder="Start with uppercase, include a number & a symbol"
                     aria-label="Password"
                   />
-                  <button
-                    type="button"
-                    className="absolute right-2 top-9 text-xs text-muted-foreground hover:text-foreground"
-                    aria-pressed={show}
-                    aria-label={show ? "Hide password" : "Show password"}
-                  >
-                    {show ? (
-                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12c2.5-5 7-7.5 9.75-7.5S19.5 7 21.75 12c-1.02 2.27-2.63 4.04-4.53 5.23" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.88 9.88A3 3 0 0012 15a3 3 0 002.12-.88" />
-                      </svg>
-                    ) : (
-                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12c2.5-5 7-7.5 9.75-7.5S19.5 7 21.75 12c-2.25 5-6.75 7.5-9.75 7.5S4.75 17 2.25 12z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                    )}
-                  </button>
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
-                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/field:opacity-100 focus-within:opacity-100" />
                   <div className="mt-2">
                     <ul className="text-xs space-y-1">
                       <li className={`${checks.firstUppercase ? "text-emerald-500" : "text-red-500"}`}>• First letter is uppercase</li>
