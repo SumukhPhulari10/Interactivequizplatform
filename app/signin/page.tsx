@@ -1,27 +1,41 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getPasswordChecks, isPasswordValid } from "../utils/validators";
 import { SiGoogle, SiGithub } from "react-icons/si";
-import { supabase } from "@/lib/supabaseClient";
+import { getBrowserSupabase } from "@/lib/supabaseClient";
 
 export default function SignInPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sb, setSb] = useState<ReturnType<typeof getBrowserSupabase>>(null);
   const router = useRouter();
   const passwordValid = useMemo(() => isPasswordValid(password), [password]);
   const checks = useMemo(() => getPasswordChecks(password), [password]);
+
+  useEffect(() => {
+    setSb(getBrowserSupabase());
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
+    if (!sb) {
+      setSubmitting(false);
+      setError("Supabase environment variables are missing.");
+      return;
+    }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await sb.auth.signInWithPassword({
       email: username.trim(),
       password: password
     });
@@ -32,7 +46,7 @@ export default function SignInPage() {
       return;
     }
 
-    const { data: profile } = await supabase
+    const { data: profile } = await sb
       .from("profiles")
       .select("role")
       .eq("id", data.user.id)
