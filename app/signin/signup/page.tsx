@@ -3,8 +3,9 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../components/auth/AuthProvider";
 import { getPasswordChecks, isPasswordValid } from "../../utils/validators";
+import { SiGoogle, SiGithub } from "react-icons/si";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function SignUpPage() {
   const [name, setName] = useState("");
@@ -14,7 +15,6 @@ export default function SignUpPage() {
   const [show, setShow] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [touched, setTouched] = useState<{ name: boolean; email: boolean; password: boolean }>({ name: false, email: false, password: false });
-  const { login } = useAuth();
   const router = useRouter();
 
   const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), [email]);
@@ -29,30 +29,25 @@ export default function SignUpPage() {
     if (!formValid) return;
     setSubmitting(true);
     try {
-      await new Promise((r) => setTimeout(r, 400));
-      const username = name.trim();
-      const ok = await login(username, password, "student");
-      if (ok) {
-        try {
-          const key = `profile:${username}`;
-          const existing = localStorage.getItem(key);
-          const base = existing ? JSON.parse(existing) : {};
-          localStorage.setItem(
-            key,
-            JSON.stringify({
-              name: username,
-              email: email.trim(),
-              branch: branch || base.branch || "Electrical",
-              bio: base.bio ?? "",
-            })
-          );
-          // Store email -> username mapping for sign-in by email
-          if (email.trim()) {
-            localStorage.setItem(`userByEmail:${email.trim().toLowerCase()}`, username);
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password: password,
+        options: {
+          data: {
+            full_name: name.trim(),
+            role: "student",
+            branch: branch
           }
-        } catch {}
-        router.push("/student");
+        }
+      });
+
+      if (error) {
+        alert(error.message);
+        return;
       }
+
+      alert("Account created! Check your email to verify.");
+      router.push("/signin");
     } finally {
       setSubmitting(false);
     }
@@ -242,25 +237,20 @@ export default function SignUpPage() {
 
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <button
-                  className="group/btn relative inline-flex w-full items-center justify-start gap-2 rounded-md border border-border/30 bg-gray-50 px-3 py-2 text-sm text-black hover:shadow-sm dark:bg-zinc-900"
+                  className="group/btn relative inline-flex w-full items-center justify-start gap-2 rounded-md border border-border/30 bg-gray-50 px-3 py-2 text-sm text-gray-700 hover:text-[#4285F4] transition-colors hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:text-[#4285F4]"
                   aria-label="Continue with Google"
                 >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
-                    <path d="M21 12.3a9 9 0 10-9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  <SiGoogle className="h-4 w-4" aria-hidden />
                   Google
                   <span className="pointer-events-none absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
                   <span className="pointer-events-none absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
                 </button>
 
                 <button
-                  className="group/btn relative inline-flex w-full items-center justify-start gap-2 rounded-md border border-border/30 bg-gray-50 px-3 py-2 text-sm text-black hover:shadow-sm dark:bg-zinc-900"
+                  className="group/btn relative inline-flex w-full items-center justify-start gap-2 rounded-md border border-border/30 bg-gray-50 px-3 py-2 text-sm text-gray-700 hover:text-[#4285F4] transition-colors hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:text-[#4285F4]"
                   aria-label="Continue with GitHub"
                 >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
-                    <path d="M12 2v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                    <circle cx="12" cy="14" r="6" stroke="currentColor" strokeWidth="1.5" />
-                  </svg>
+                  <SiGithub className="h-4 w-4" aria-hidden />
                   GitHub
                   <span className="pointer-events-none absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
                   <span className="pointer-events-none absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />

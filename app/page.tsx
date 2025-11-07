@@ -2,6 +2,9 @@
 import Link from "next/link";
 import { Spotlight } from "@/components/ui/spotlight-new";
 
+
+
+
 export default function Home() {
   const branches = [
     { id: "electrical", name: "Electrical", color: "text-accent" },

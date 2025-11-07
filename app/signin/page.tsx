@@ -3,19 +3,16 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../components/auth/AuthProvider";
 import { getPasswordChecks, isPasswordValid } from "../utils/validators";
+import { SiGoogle, SiGithub } from "react-icons/si";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function SignInPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
-  const [remember, setRemember] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [guestSubmitting, setGuestSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { login, guestLogin } = useAuth();
-  const [role, setRole] = useState<"student" | "teacher" | "admin">("student");
   const router = useRouter();
   const passwordValid = useMemo(() => isPasswordValid(password), [password]);
   const checks = useMemo(() => getPasswordChecks(password), [password]);
@@ -24,51 +21,40 @@ export default function SignInPage() {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
-    if (!passwordValid) {
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: username.trim(),
+      password: password
+    });
+
+    if (error) {
       setSubmitting(false);
-      setError("Password must start with an uppercase letter, include a number and a symbol (min 6 chars).");
+      setError(error.message);
       return;
     }
-    let uname = username.trim();
-    try {
-      const isEmail = /@/.test(uname);
-      if (isEmail) {
-        const mapped = localStorage.getItem(`userByEmail:${uname.toLowerCase()}`);
-        if (mapped) uname = mapped;
-      }
-    } catch {}
-    const ok = await login(uname, password, role);
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+
+    const userRole =
+      profile?.role === "teacher" ? "teacher"
+      : profile?.role === "admin" ? "admin"
+      : "student";
+
     setSubmitting(false);
-    if (ok) {
-      try {
-        const key = `profile:${uname}`;
-        const existing = localStorage.getItem(key);
-        if (!existing) {
-          localStorage.setItem(
-            key,
-            JSON.stringify({ name: uname, email: "", branch: "Electrical", bio: "" })
-          );
-        }
-      } catch {}
-      const dest = role === "admin" ? "/admin" : role === "teacher" ? "/teacher" : "/student";
-      router.push(dest);
-    } else {
-      setError("Enter username and password");
-    }
+
+    const dest =
+      userRole === "admin" ? "/admin"
+      : userRole === "teacher" ? "/teacher"
+      : "/student";
+
+    router.push(dest);
   }
 
-  async function handleGuestContinue() {
-    setError(null);
-    setGuestSubmitting(true);
-    const ok = await guestLogin(role);
-    setGuestSubmitting(false);
-    if (ok) {
-      const dest = role === "admin" ? "/admin" : role === "teacher" ? "/teacher" : "/student";
-      router.push(dest);
-    } else {
-      setError("Could not start guest session. Please try again.");
-    }
-  }
+  // guest flow removed
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -108,21 +94,7 @@ export default function SignInPage() {
           <div className="w-full max-w-md">
             <div className="rounded-2xl bg-background/90 dark:bg-black/80 border border-border/30 p-6 md:p-8 shadow-xl">
               <h2 className="text-2xl font-semibold">Sign in</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Choose your role and sign in.</p>
-                <label className="block">
-                  <span className="text-sm text-muted-foreground">Role</span>
-                  <select
-                    value={role}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                      setRole(e.target.value as "student" | "teacher" | "admin")
-                    }
-                    className="mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  >
-                    <option value="student">Student</option>
-                    <option value="teacher">Teacher</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </label>
+              <p className="mt-1 text-sm text-muted-foreground">Sign in with your email and password.</p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
                 <label className="block relative pb-3">
@@ -182,17 +154,7 @@ export default function SignInPage() {
                   {error && <div className="mt-1 text-xs text-red-500">{error}</div>}
                 </label>
 
-                <div className="flex items-center justify-between">
-                  <label className="inline-flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={remember}
-                      onChange={() => setRemember((r) => !r)}
-                      className="h-4 w-4 rounded border-border/30 bg-background focus:ring-2 focus:ring-primary/30"
-                    />
-                    <span className="text-sm text-muted-foreground">Remember me</span>
-                  </label>
-
+                <div className="flex items-center justify-end">
                   <Link href="/signin/forgot" className="text-sm text-primary hover:underline">
                     Forgot password?
                   </Link>
@@ -231,66 +193,24 @@ export default function SignInPage() {
 
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <button
-                  className="group/btn relative inline-flex w-full items-center justify-start gap-2 rounded-md border border-border/30 bg-gray-50 px-3 py-2 text-sm text-black hover:shadow-sm dark:bg-zinc-900"
+                  className="group/btn relative inline-flex w-full items-center justify-start gap-2 rounded-md border border-border/30 bg-gray-50 px-3 py-2 text-sm text-gray-700 hover:text-[#4285F4] transition-colors hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:text-[#4285F4]"
                   aria-label="Continue with Google"
                 >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
-                    <path d="M21 12.3a9 9 0 10-9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  <SiGoogle className="h-4 w-4" aria-hidden />
                   Google
                   <span className="pointer-events-none absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
                   <span className="pointer-events-none absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
                 </button>
 
                 <button
-                  className="group/btn relative inline-flex w-full items-center justify-start gap-2 rounded-md border border-border/30 bg-gray-50 px-3 py-2 text-sm text-black hover:shadow-sm dark:bg-zinc-900"
+                  className="group/btn relative inline-flex w-full items-center justify-start gap-2 rounded-md border border-border/30 bg-gray-50 px-3 py-2 text-sm text-gray-700 hover:text-[#4285F4] transition-colors hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:text-[#4285F4]"
                   aria-label="Continue with GitHub"
                 >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
-                    <path d="M12 2v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                    <circle cx="12" cy="14" r="6" stroke="currentColor" strokeWidth="1.5" />
-                  </svg>
+                  <SiGithub className="h-4 w-4" aria-hidden />
                   GitHub
                   <span className="pointer-events-none absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
                   <span className="pointer-events-none absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
                 </button>
-              </div>
-
-              <div className="mt-5 flex items-center gap-3">
-                <div className="flex-1 h-px bg-border/30" />
-                <div className="text-xs text-muted-foreground">or continue as</div>
-                <div className="flex-1 h-px bg-border/30" />
-              </div>
-
-              <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={handleGuestContinue}
-                  disabled={guestSubmitting}
-                  className={`group/btn relative w-full inline-flex justify-center items-center gap-2 rounded-md px-4 py-2 text-sm font-medium shadow ${
-                    guestSubmitting
-                      ? "bg-gradient-to-br from-primary/70 to-primary/50 text-primary-foreground cursor-not-allowed"
-                      : "bg-gradient-to-br from-zinc-800 to-zinc-900 text-white dark:from-zinc-900 dark:to-black"
-                  }`}
-                  aria-label="Continue as Guest"
-                >
-                  {guestSubmitting ? (
-                    <>
-                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                      </svg>
-                      Starting guest session...
-                    </>
-                  ) : (
-                    <>Continue as Guest ({role})</>
-                  )}
-                  <span className="pointer-events-none absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
-                  <span className="pointer-events-none absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
-                </button>
-                <p className="mt-2 text-xs text-muted-foreground text-center">
-                  Guest mode won’t save progress. Create an account anytime to keep your results.
-                </p>
               </div>
 
               <div className="mt-4 text-center text-sm">

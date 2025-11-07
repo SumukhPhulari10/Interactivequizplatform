@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useAuth } from "../components/auth/AuthProvider";
 
 type Entry = {
   id: string;
@@ -46,7 +45,6 @@ function seedEntries(): Entry[] {
 }
 
 export default function LeaderboardPage() {
-  const { user } = useAuth();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [isClient, setIsClient] = useState(false);
 
@@ -73,39 +71,7 @@ export default function LeaderboardPage() {
     return [...entries].sort((a, b) => b.score - a.score).slice(0, 100);
   }, [entries]);
 
-  const currentUserIndex = useMemo(() => {
-    if (!user) return -1;
-    return sorted.findIndex((e) => e.name.toLowerCase() === user.name.toLowerCase());
-  }, [sorted, user]);
-
-  function enrollUser() {
-    if (!user) return;
-    if (entries.some((e) => e.name.toLowerCase() === user.name.toLowerCase())) return;
-    const newEntry: Entry = {
-      id: `u-${Date.now()}`,
-      name: user.name,
-      branch: BRANCHES[Math.floor(Math.random() * BRANCHES.length)],
-      score: Math.floor(50 + Math.random() * 40),
-    };
-    const next = [...entries, newEntry];
-    setEntries(next);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {}
-  }
-
-  function boostMyScore(delta: number) {
-    if (!user) return;
-    const next = entries.map((e) =>
-      e.name.toLowerCase() === user.name.toLowerCase()
-        ? { ...e, score: Math.min(100, e.score + delta) }
-        : e
-    );
-    setEntries(next);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {}
-  }
+  // User-specific actions removed
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -116,18 +82,7 @@ export default function LeaderboardPage() {
             <p className="mt-1 text-sm text-muted-foreground">Top scores across branches. Enroll to join the rankings.</p>
           </div>
           <div className="flex items-center gap-2">
-            {user ? (
-              currentUserIndex === -1 ? (
-                <button onClick={enrollUser} className="px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm">Enroll me</button>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <button onClick={() => boostMyScore(1)} className="px-3 py-2 rounded-md border border-input text-sm">+1 score</button>
-                  <span className="text-xs text-muted-foreground">Signed in as {user.name}</span>
-                </div>
-              )
-            ) : (
-              <Link href="/signin" className="px-3 py-2 rounded-md border border-input text-sm">Sign in to enroll</Link>
-            )}
+            <Link href="/signin" className="px-3 py-2 rounded-md border border-input text-sm">Sign in to enroll</Link>
           </div>
         </header>
 
@@ -140,9 +95,8 @@ export default function LeaderboardPage() {
           </div>
           <div className="divide-y divide-border/40">
             {sorted.map((e, i) => {
-              const isMe = user && e.name.toLowerCase() === user.name.toLowerCase();
               return (
-                <div key={e.id} className={`grid grid-cols-12 px-4 py-3 text-sm ${isMe ? "bg-primary/5" : ""}`}>
+                <div key={e.id} className={`grid grid-cols-12 px-4 py-3 text-sm`}>
                   <div className="col-span-2 flex items-center gap-2">
                     <span className="w-6 text-muted-foreground">#{i + 1}</span>
                     {i < 3 && (
@@ -157,10 +111,6 @@ export default function LeaderboardPage() {
             })}
           </div>
         </section>
-
-        {user && currentUserIndex >= 0 && (
-          <p className="mt-3 text-xs text-muted-foreground">Your current rank: #{currentUserIndex + 1}</p>
-        )}
       </main>
     </div>
   );
