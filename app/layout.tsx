@@ -30,6 +30,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? "";
+  const sbAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY ?? "";
   const setThemeScript = `
     (function() {
       try {
@@ -49,11 +51,20 @@ export default function RootLayout({
       } catch (e) {}
     })();
   `;
+  const injectSupabaseScript = `
+    (function(){
+      try {
+        if (!window.__SUPABASE_URL) window.__SUPABASE_URL = ${JSON.stringify(sbUrl)};
+        if (!window.__SUPABASE_ANON) window.__SUPABASE_ANON = ${JSON.stringify(sbAnon)};
+      } catch (e) {}
+    })();
+  `;
 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <script dangerouslySetInnerHTML={{ __html: setThemeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: injectSupabaseScript }} />
 
         <div className="relative flex min-h-screen flex-col bg-background">
           <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
