@@ -5,33 +5,23 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getPasswordChecks, isPasswordValid } from "../utils/validators";
 import { SiGoogle, SiGithub } from "react-icons/si";
-import { getBrowserSupabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabaseBrowser";
 
 export default function SignInClient() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sb, setSb] = useState<ReturnType<typeof getBrowserSupabase>>(null);
   const router = useRouter();
   const passwordValid = useMemo(() => isPasswordValid(password), [password]);
   const checks = useMemo(() => getPasswordChecks(password), [password]);
-
-  useEffect(() => {
-    setSb(getBrowserSupabase());
-  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
-    if (!sb) {
-      setSubmitting(false);
-      setError("Supabase environment variables are missing.");
-      return;
-    }
 
-    const { data, error } = await sb.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: username.trim(),
       password: password,
     });
@@ -42,11 +32,15 @@ export default function SignInClient() {
       return;
     }
 
-    const { data: profile } = await sb
+    const { data: profile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", data.user.id)
       .single();
+
+    try {
+      await supabase.from("activity_log").insert({ user_id: data.user.id, action: "Signed in" });
+    } catch {}
 
     const userRole =
       profile?.role === "teacher"

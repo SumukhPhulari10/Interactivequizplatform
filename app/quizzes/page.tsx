@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, type ReactElement } from "react";
+import { useEffect, useMemo, useState, type ReactElement } from "react";
+import { supabase } from "@/lib/supabaseBrowser";
 
 type Question = {
   q: string;
@@ -103,6 +104,22 @@ export default function QuizzesPage(): ReactElement {
   const [index, setIndex] = useState<number>(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [showResults, setShowResults] = useState<boolean>(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getUser().then((res) => {
+      if (!mounted) return;
+      setUserId(res.data?.user?.id ?? null);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e: any, _s: any) => {
+      supabase.auth.getUser().then((res) => setUserId(res.data?.user?.id ?? null));
+    });
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
 
   const questions = useMemo<Question[]>(() => {
     return active ? QUESTION_BANKS[active] : [];
@@ -113,6 +130,13 @@ export default function QuizzesPage(): ReactElement {
     setIndex(0);
     setAnswers(Array(QUESTION_BANKS[level].length).fill(-1));
     setShowResults(false);
+    // Log start
+    if (userId) {
+      supabase
+        .from("activity_log")
+        .insert({ user_id: userId, action: `Started quiz: ${level}` })
+        .then(() => {}, () => {});
+    }
   }
 
   function selectOption(optionIndex: number) {
@@ -123,7 +147,17 @@ export default function QuizzesPage(): ReactElement {
 
   function nextQuestion() {
     if (index < questions.length - 1) setIndex(index + 1);
-    else setShowResults(true);
+    else {
+      setShowResults(true);
+      // Log completion
+      if (userId && active) {
+        const sc = questions.reduce((s, q, i) => (answers[i] === q.a ? s + 1 : s), 0);
+        supabase
+          .from("activity_log")
+          .insert({ user_id: userId, action: `Completed quiz: ${active} (score ${sc}/${questions.length})` })
+          .then(() => {}, () => {});
+      }
+    }
   }
 
   function prevQuestion() {

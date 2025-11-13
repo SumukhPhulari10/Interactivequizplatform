@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getPasswordChecks, isPasswordValid } from "../utils/validators";
 import { SiGoogle, SiGithub } from "react-icons/si";
-import { getBrowserSupabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabaseBrowser";
 
 export default function SignUpClient() {
   const [name, setName] = useState("");
@@ -15,7 +15,6 @@ export default function SignUpClient() {
   const [show, setShow] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [touched, setTouched] = useState<{ name: boolean; email: boolean; password: boolean }>({ name: false, email: false, password: false });
-  const [sb, setSb] = useState<ReturnType<typeof getBrowserSupabase>>(null);
   const router = useRouter();
 
   const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), [email]);
@@ -24,21 +23,13 @@ export default function SignUpClient() {
   const checks = useMemo(() => getPasswordChecks(password), [password]);
   const formValid = emailValid && nameValid && passwordValid;
 
-  useEffect(() => {
-    setSb(getBrowserSupabase());
-  }, []);
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setTouched({ name: true, email: true, password: true });
     if (!formValid) return;
     setSubmitting(true);
     try {
-      if (!sb) {
-        alert("Supabase environment variables are missing.");
-        return;
-      }
-      const { error } = await sb.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email: email.trim(),
         password: password,
         options: {
