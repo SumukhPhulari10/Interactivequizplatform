@@ -1,6 +1,6 @@
-export const dynamic = "force-dynamic";   // 🔥 FIXES DEPLOY BUILD
-
 "use client";
+
+export const dynamic = "force-dynamic"; // 🔥 FIXES DEPLOY BUILD
 
 import Link from "next/link";
 import RoleGuard from "../components/auth/RoleGuard";
