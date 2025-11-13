@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";   // 🔥 FIXES DEPLOY BUILD
+
 "use client";
 
 import Link from "next/link";
@@ -11,15 +13,17 @@ export default function AdminDashboard() {
         <p className="mt-1 text-sm text-muted-foreground">Full site management.</p>
 
         <div className="mt-6 grid gap-3">
-          <Link href="/branches" className="px-3 py-2 rounded-md border border-input text-sm">Manage questions</Link>
-          <Link href="/leaderboard" className="px-3 py-2 rounded-md border border-input text-sm">Leaderboard</Link>
-          <Link href="/profile" className="px-3 py-2 rounded-md border border-input text-sm">All scores</Link>
+          <Link href="/branches" className="px-3 py-2 rounded-md border border-input text-sm">
+            Manage questions
+          </Link>
+          <Link href="/leaderboard" className="px-3 py-2 rounded-md border border-input text-sm">
+            Leaderboard
+          </Link>
+          <Link href="/profile" className="px-3 py-2 rounded-md border border-input text-sm">
+            All scores
+          </Link>
         </div>
       </div>
     </RoleGuard>
   );
 }
-
-
-
-
