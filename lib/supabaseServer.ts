@@ -1,8 +1,6 @@
 import { cookies } from 'next/headers'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
-// use CookieOptions from @supabase/ssr and Next's synchronous cookies() API
-
 type CookieStoreLike = {
   get(name: string): { name: string; value: string } | undefined
   set(name: string, value: string, options?: CookieOptions): void
@@ -11,8 +9,8 @@ type CookieStoreLike = {
 
 export function supabaseServer() {
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.SUPABASE_URL!,          // 🔥 server-side var
+    process.env.SUPABASE_ANON_KEY!,     // 🔥 server-side var
     {
       cookies: {
         get(name: string) {
