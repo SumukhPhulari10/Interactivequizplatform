@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabaseBrowser";
 
@@ -16,7 +17,7 @@ export default function UserMenu() {
     supabase.auth.getUser().then((res: { data?: { user: { id: string; email?: string | null } | null } }) => {
       if (active) setUser(res.data?.user ?? null);
     });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event: any, _session: any) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(() => {
       supabase.auth.getUser().then((res: { data?: { user: { id: string; email?: string | null } | null } }) => setUser(res.data?.user ?? null));
     });
     return () => {
@@ -82,7 +83,7 @@ export default function UserMenu() {
       >
         <span className="inline-block h-7 w-7 rounded-full overflow-hidden bg-muted/20 border border-border/30">
           {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="avatar" className="h-full w-full object-cover" />
+            <Image src={profile.avatar_url} alt="avatar" width={28} height={28} className="h-full w-full object-cover" />
           ) : (
             <span className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground">—</span>
           )}

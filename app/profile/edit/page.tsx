@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseBrowser";
 
@@ -88,7 +89,7 @@ export default function EditProfilePage() {
                 <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-purple-500/40 to-blue-500/40 blur-md" aria-hidden />
                 <div className="relative h-full w-full rounded-full overflow-hidden border border-white/20">
                   {avatarUrl ? (
-                    <img src={avatarUrl} alt="avatar" className="h-full w-full object-cover" />
+                    <Image src={avatarUrl} alt="avatar" width={96} height={96} className="h-full w-full object-cover" />
                   ) : (
                     <div className="h-full w-full flex items-center justify-center text-xs text-muted-foreground">No avatar</div>
                   )}

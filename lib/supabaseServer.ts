@@ -1,5 +1,13 @@
 import { cookies } from 'next/headers'
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+
+// use CookieOptions from @supabase/ssr and Next's synchronous cookies() API
+
+type CookieStoreLike = {
+  get(name: string): { name: string; value: string } | undefined
+  set(name: string, value: string, options?: CookieOptions): void
+  set(options: { name: string; value: string } & CookieOptions): void
+}
 
 export function supabaseServer() {
   return createServerClient(
@@ -7,17 +15,25 @@ export function supabaseServer() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        async get(name: string) {
-          const c = await (cookies() as any)
-          return c.get(name)?.value
+        get(name: string) {
+          const store = cookies() as unknown as CookieStoreLike
+          return store.get(name)?.value
         },
-        async set(name: string, value: string, options?: any) {
-          const c = await (cookies() as any)
-          c.set(name, value, options)
+        set(name: string, value: string, options?: CookieOptions) {
+          const store = cookies() as unknown as CookieStoreLike
+          try {
+            store.set(name, value, options)
+          } catch {
+            store.set({ name, value, ...(options ?? {}) })
+          }
         },
-        async remove(name: string, options?: any) {
-          const c = await (cookies() as any)
-          c.set(name, '', options)
+        remove(name: string, options?: CookieOptions) {
+          const store = cookies() as unknown as CookieStoreLike
+          try {
+            store.set(name, '', { ...(options ?? {}), maxAge: 0 })
+          } catch {
+            store.set({ name, value: '', ...(options ?? {}), maxAge: 0 })
+          }
         }
       }
     }

@@ -112,7 +112,7 @@ export default function QuizzesPage(): ReactElement {
       if (!mounted) return;
       setUserId(res.data?.user?.id ?? null);
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e: any, _s: any) => {
+    const { data: sub } = supabase.auth.onAuthStateChange(() => {
       supabase.auth.getUser().then((res) => setUserId(res.data?.user?.id ?? null));
     });
     return () => {
