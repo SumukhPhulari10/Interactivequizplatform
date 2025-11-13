@@ -51,8 +51,8 @@ export default function EditProfilePage() {
       setAvatarUrl(url);
       // Immediately persist avatar_url in profiles
       await supabase.from("profiles").update({ avatar_url: url }).eq("id", userId);
-    } catch (e: any) {
-      setError(e?.message ?? "Upload failed");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Upload failed");
     } finally {
       setUploading(false);
     }
@@ -70,8 +70,8 @@ export default function EditProfilePage() {
         .eq("id", userId);
       await supabase.from("activity_log").insert({ user_id: userId, action: "Profile updated" });
       router.push("/profile");
-    } catch (e: any) {
-      setError(e?.message ?? "Failed to save");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to save");
     } finally {
       setSaving(false);
     }

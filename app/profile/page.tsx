@@ -16,7 +16,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile>(null);
   const [activity, setActivity] = useState<Activity[]>([]);
   const [scores, setScores] = useState<AttemptRow[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -25,7 +25,7 @@ export default function ProfilePage() {
       setUser(res.data?.user ?? null);
       setLoading(false);
     });
-    const { subscription } = supabase.auth.onAuthStateChange((_event: unknown) => {
+    const { subscription } = supabase.auth.onAuthStateChange(() => {
       supabase.auth.getUser().then((res: { data?: { user: User } }) => setUser(res.data?.user ?? null));
     }).data;
     return () => {
@@ -54,7 +54,8 @@ export default function ProfilePage() {
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(10);
-        if (!cancelled) setActivity(Array.isArray(acts) ? acts.map(a => ({ id: a.id as any, action: (a as any).action ?? null, created_at: (a as any).created_at })) : []);
+        type ActRow = { id: number | string; action: string | null; created_at: string };
+        if (!cancelled) setActivity(Array.isArray(acts) ? (acts as ActRow[]) : []);
       } catch {}
       try {
         const { data: atts } = await supabase
@@ -63,8 +64,8 @@ export default function ProfilePage() {
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(10);
-        if (!cancelled) setScores((atts as any) ?? []);
-      } catch (e: any) {
+        if (!cancelled) setScores(Array.isArray(atts) ? (atts as AttemptRow[]) : []);
+      } catch {
         if (!cancelled) setScores([]);
       }
     }

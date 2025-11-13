@@ -10,17 +10,6 @@ type Entry = {
   score: number; // 0..100
 };
 
-const BRANCHES = [
-  "Electrical",
-  "Mechanical",
-  "Computer",
-  "Civil",
-  "Chemical",
-  "AI & ML",
-  "Industrial",
-  "Materials",
-];
-
 const STORAGE_KEY = "iqp:leaderboard";
 
 function seedEntries(): Entry[] {
