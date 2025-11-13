@@ -3,9 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/lib/supabaseBrowser";
+import { getSupabase } from "@/lib/supabaseBrowser";
 
 export default function UserMenu() {
+  const supabase = getSupabase();
   const [user, setUser] = useState<null | { id: string; email?: string | null }>(null);
   const [profile, setProfile] = useState<{ full_name?: string | null; avatar_url?: string | null } | null>(null);
   const [open, setOpen] = useState(false);
