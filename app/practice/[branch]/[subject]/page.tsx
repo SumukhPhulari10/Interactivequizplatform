@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { use, useEffect, useMemo, useState, type ChangeEvent } from "react";
 import Link from "next/link";
 import RoleGuard from "@/app/components/auth/RoleGuard";
