@@ -8,7 +8,7 @@ import { getSupabase } from "@/lib/supabaseBrowser";
 export default function UserMenu() {
   const supabase = getSupabase();
   const [user, setUser] = useState<null | { id: string; email?: string | null }>(null);
-  const [profile, setProfile] = useState<{ full_name?: string | null; avatar_url?: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ full_name?: string | null; avatar_url?: string | null; role?: string | null } | null>(null);
   const [open, setOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -36,14 +36,36 @@ export default function UserMenu() {
       }
       const { data } = await supabase
         .from("profiles")
-        .select("full_name, avatar_url")
+        .select("full_name, avatar_url, role")
         .eq("id", user.id)
         .maybeSingle();
       if (!cancelled) setProfile(data ?? null);
     }
     load();
+    
+    // Listen for profile changes via Supabase realtime (only if user exists)
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    if (user?.id) {
+      channel = supabase
+        .channel(`profile:${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'profiles',
+            filter: `id=eq.${user.id}`,
+          },
+          () => {
+            if (!cancelled) load();
+          }
+        )
+        .subscribe();
+    }
+
     return () => {
       cancelled = true;
+      if (channel) channel.unsubscribe();
     };
   }, [user?.id, supabase]);
 
@@ -80,22 +102,32 @@ export default function UserMenu() {
       <button
         ref={btnRef}
         onClick={() => setOpen((o) => !o)}
-        className="group inline-flex items-center gap-2 px-2 py-1 rounded-md border border-white/10 bg-white/5 dark:bg-black/10 backdrop-blur text-sm hover:border-white/20 transition"
+        className="group inline-flex items-center justify-center h-9 w-9 rounded-full overflow-hidden border border-white/10 bg-white/5 dark:bg-black/20 backdrop-blur-md hover:border-white/30 hover:bg-white/10 dark:hover:bg-black/30 transition-all shadow-sm"
+        aria-label="User menu"
       >
-        <span className="inline-block h-7 w-7 rounded-full overflow-hidden bg-muted/20 border border-border/30">
-          {profile?.avatar_url ? (
-            <Image src={profile.avatar_url} alt="avatar" width={28} height={28} className="h-full w-full object-cover" />
-          ) : (
-            <span className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground">—</span>
-          )}
-        </span>
-        <span className="max-w-[9rem] truncate text-foreground/80 group-hover:text-foreground transition">{profile?.full_name || user.email || "Profile"}</span>
-        <svg className={`h-4 w-4 transition ${open ? "rotate-180" : ""}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden>
-          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clipRule="evenodd" />
-        </svg>
+        {profile?.avatar_url ? (
+          <Image src={profile.avatar_url} alt="avatar" width={36} height={36} className="h-full w-full object-cover" />
+        ) : (
+          <span className="h-full w-full flex items-center justify-center text-sm font-medium text-foreground/80 bg-gradient-to-br from-purple-500/30 to-blue-500/30">
+            {profile?.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "U"}
+          </span>
+        )}
       </button>
       {open && (
-        <div ref={menuRef} className="absolute right-0 mt-2 w-44 rounded-xl border border-white/10 bg-white/10 dark:bg-black/30 backdrop-blur-xl shadow-lg p-1">
+        <div ref={menuRef} className="absolute right-0 mt-2 w-56 rounded-xl border border-white/10 bg-white/10 dark:bg-black/30 backdrop-blur-xl shadow-lg p-2 z-50">
+          <div className="px-3 py-2 border-b border-white/10 mb-1">
+            <div className="font-medium text-sm text-foreground">
+              {profile?.full_name || "User"}
+            </div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {user.email}
+            </div>
+            {profile?.role && (
+              <div className="text-xs text-muted-foreground mt-1 capitalize">
+                {profile.role}
+              </div>
+            )}
+          </div>
           <Link
             href="/profile"
             className="block rounded-lg px-3 py-2 text-sm hover:bg-white/10 transition"

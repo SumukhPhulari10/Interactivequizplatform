@@ -13,6 +13,7 @@ export default function SignUpClient() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [branch, setBranch] = useState("Electrical");
+  const [role, setRole] = useState("student");
   const [show, setShow] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [touched, setTouched] = useState<{ name: boolean; email: boolean; password: boolean }>({ name: false, email: false, password: false });
@@ -30,21 +31,42 @@ export default function SignUpClient() {
     if (!formValid) return;
     setSubmitting(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: email.trim(),
         password: password,
         options: {
           data: {
             full_name: name.trim(),
-            role: "student",
+            role: role,
             branch: branch,
           },
         },
       });
 
-      if (error) {
-        alert(error.message);
+      if (signUpError) {
+        alert(signUpError.message);
         return;
+      }
+
+      // Create profile record with role
+      if (signUpData.user) {
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .insert({
+            id: signUpData.user.id,
+            full_name: name.trim(),
+            role: role,
+            created_at: new Date().toISOString(),
+          });
+
+        if (profileError) {
+          console.error("Profile creation error:", profileError);
+          // Try to get the error message
+          const errorMsg = profileError.message || profileError.code || JSON.stringify(profileError);
+          alert(`Account created but profile setup failed: ${errorMsg}. Please contact support.`);
+        } else {
+          console.log("Profile created successfully for user:", signUpData.user.id);
+        }
       }
 
       alert("Account created! Check your email to verify.");
@@ -135,6 +157,22 @@ export default function SignUpClient() {
                   {touched.email && !emailValid && (
                     <div className="mt-1 text-xs text-red-500">Enter a valid email.</div>
                   )}
+                </label>
+
+                <label className="block relative pb-2">
+                  <span className="text-sm text-muted-foreground">Role</span>
+                  <select
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="mt-2 w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    aria-label="Role"
+                  >
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 peer-focus-visible:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-10 bottom-0 translate-y-2 mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 peer-focus-visible:opacity-100" />
                 </label>
 
                 <label className="block relative pb-2">

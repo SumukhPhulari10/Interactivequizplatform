@@ -2,20 +2,70 @@
 
 export const dynamic = "force-dynamic";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import RoleGuard from "../components/auth/RoleGuard";
+import { getSupabase } from "@/lib/supabaseBrowser";
 
 export default function TeacherDashboard() {
+  const supabase = getSupabase();
+  const [userName, setUserName] = useState<string>("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!mounted || !user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (mounted) {
+        setUserName(profile?.full_name || user.email || "Teacher");
+      }
+    }
+
+    loadUser();
+
+    return () => {
+      mounted = false;
+    };
+  }, [supabase]);
+
   return (
     <RoleGuard allow={["teacher", "admin"]}>
       <div className="container mx-auto px-5 py-10">
         <h1 className="text-2xl font-bold">Teacher Dashboard</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage questions and view student performance.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Welcome, {userName || "Teacher"}. Manage questions and view student performance.
+        </p>
 
-        <div className="mt-6 grid gap-3">
-          <Link href="/branches" className="px-3 py-2 rounded-md border border-input text-sm">Add or edit questions</Link>
-          <Link href="/leaderboard" className="px-3 py-2 rounded-md border border-input text-sm">Leaderboard</Link>
-          <Link href="/profile" className="px-3 py-2 rounded-md border border-input text-sm">Student scores</Link>
+        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Link
+            href="/branches"
+            className="p-4 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition"
+          >
+            <h3 className="font-semibold mb-1">Add/Edit Questions</h3>
+            <p className="text-sm text-muted-foreground">Create and manage quiz questions by branch</p>
+          </Link>
+          <Link
+            href="/leaderboard"
+            className="p-4 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition"
+          >
+            <h3 className="font-semibold mb-1">Leaderboard</h3>
+            <p className="text-sm text-muted-foreground">View student rankings and scores</p>
+          </Link>
+          <Link
+            href="/profile"
+            className="p-4 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition"
+          >
+            <h3 className="font-semibold mb-1">Student Data</h3>
+            <p className="text-sm text-muted-foreground">View all student scores and attempts</p>
+          </Link>
         </div>
       </div>
     </RoleGuard>

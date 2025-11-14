@@ -43,13 +43,25 @@ export default function ProfilePage() {
       if (!user?.id) return;
       setError(null);
       try {
-        const { data: p } = await supabase
+        // Force a fresh fetch by adding a timestamp cache buster
+        const { data: p, error: profileError } = await supabase
           .from("profiles")
           .select("id, full_name, role, avatar_url, created_at")
           .eq("id", user.id)
           .maybeSingle();
-        if (!cancelled) setProfile(p ?? null);
-      } catch {}
+        if (!cancelled) {
+          setProfile(p ?? null);
+          if (profileError) {
+            console.error("Error loading profile:", profileError);
+            setError(profileError.message);
+          }
+        }
+      } catch (err) {
+        console.error("Error in load function:", err);
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Failed to load profile");
+        }
+      }
       try {
         const { data: acts } = await supabase
           .from("activity_log")
@@ -73,8 +85,30 @@ export default function ProfilePage() {
       }
     }
     load();
+    
+    // Listen for profile changes via Supabase realtime (only if user exists)
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    if (user?.id) {
+      channel = supabase
+        .channel(`profile-updates:${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'profiles',
+            filter: `id=eq.${user.id}`,
+          },
+          () => {
+            if (!cancelled) load();
+          }
+        )
+        .subscribe();
+    }
+
     return () => {
       cancelled = true;
+      if (channel) channel.unsubscribe();
     };
   }, [user?.id, supabase]);
 

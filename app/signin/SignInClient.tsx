@@ -188,7 +188,7 @@ export default function SignInClient() {
                 </button>
 
                 <button
-                  className="group/btn relative inline-flex w-full items-center justify-start gap-2 rounded-md border border-border/30 bg-gray-50 px-3 py-2 text-sm text-gray-700 hover:text-[#4285F4] transition-colors hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 dark:bg-zinc-900 dark:text-zinc-900"
+                  className="group/btn relative inline-flex w-full items-center justify-start gap-2 rounded-md border border-border/30 bg-gray-50 px-3 py-2 text-sm text-white-700 hover:text-[#4285F4] transition-colors hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 dark:bg-zinc-900 dark:text-zinc-900"
                   aria-label="Continue with GitHub"
                 >
                   <SiGithub className="h-4 w-4" aria-hidden />
