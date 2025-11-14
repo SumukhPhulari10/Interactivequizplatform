@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useMemo, useState, type ReactElement } from "react";
-import { supabase } from "@/lib/supabaseBrowser";
+import { getSupabase } from "@/lib/supabaseBrowser";
 
 type Question = {
   q: string;
@@ -102,6 +102,7 @@ const QUESTION_BANKS: Record<LevelKey, Question[]> = {
 };
 
 export default function QuizzesPage(): ReactElement {
+  const supabase = getSupabase();
   const [active, setActive] = useState<LevelKey | null>(null);
   const [index, setIndex] = useState<number>(0);
   const [answers, setAnswers] = useState<number[]>([]);

@@ -5,9 +5,10 @@ export const dynamic = "force-dynamic";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseBrowser";
+import { getSupabase } from "@/lib/supabaseBrowser";
 
 export default function EditProfilePage() {
+  const supabase = getSupabase();
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [fullName, setFullName] = useState("");
