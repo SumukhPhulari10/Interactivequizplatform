@@ -5,10 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getPasswordChecks, isPasswordValid } from "../utils/validators";
 import { SiGoogle, SiGithub } from "react-icons/si";
-import { getSupabase } from "@/lib/supabaseBrowser";
+import { supabase } from "@/lib/supabaseBrowser";
 
 export default function SignUpClient() {
-  const supabase = getSupabase();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

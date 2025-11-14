@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { getSupabase } from "@/lib/supabaseBrowser";
+import { supabase } from "@/lib/supabaseBrowser";
 
 type User = { id: string; email?: string | null } | null;
 type Profile = { id: string; full_name?: string | null; role?: string | null; avatar_url?: string | null; created_at?: string | null } | null;
@@ -13,7 +13,6 @@ type Activity = { id: number | string; action: string | null; created_at: string
 type AttemptRow = { score?: number | null; created_at?: string | null; quizzes?: { title?: string | null } | null };
 
 export default function ProfilePage() {
-  const supabase = getSupabase();
   const [user, setUser] = useState<User>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile>(null);
@@ -35,7 +34,7 @@ export default function ProfilePage() {
       active = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,7 +75,7 @@ export default function ProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, [user?.id]);
+  }, [user?.id, supabase]);
 
   if (loading) {
     return (

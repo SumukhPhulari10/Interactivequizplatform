@@ -75,8 +75,9 @@ export default function EditProfilePage() {
         .from("profiles")
         .update({ avatar_url: url })
         .eq("id", userId);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : typeof err === "string" ? err : "Unexpected error";
+      setError(String(msg));
     } finally {
       setUploading(false);
     }
@@ -104,8 +105,9 @@ export default function EditProfilePage() {
         .insert({ user_id: userId, action: "Profile updated" });
 
       router.push("/profile");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : typeof err === "string" ? err : "Unexpected error";
+      setError(String(msg));
     } finally {
       setSaving(false);
     }
