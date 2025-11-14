@@ -2,20 +2,11 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 
-let client: ReturnType<typeof createBrowserClient> | null = null;
+export const supabase = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export function getSupabase() {
-  if (client) return client;
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-
-  if (!url || !anon) {
-    console.warn("⚠️ Supabase env missing in browser.");
-  }
-
-  client = createBrowserClient(url, anon);
-  return client;
+  return supabase;
 }
-
-export const supabase = getSupabase();
