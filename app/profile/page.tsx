@@ -3,14 +3,27 @@
 export const dynamic = "force-dynamic";
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabaseBrowser";
+import { getAvatarOption } from "@/lib/avatarOptions";
 
 type User = { id: string; email?: string | null } | null;
-type Profile = { id: string; full_name?: string | null; role?: string | null; avatar_url?: string | null; created_at?: string | null } | null;
+type Profile = {
+  id: string;
+  full_name?: string | null;
+  role?: string | null;
+  avatar_key?: string | null;
+  created_at?: string | null;
+} | null;
 type Activity = { id: number | string; action: string | null; created_at: string };
-type AttemptRow = { score?: number | null; created_at?: string | null; quizzes?: { title?: string | null } | null };
+type AttemptRow = { 
+  id?: number | string;
+  score?: number | null; 
+  total_questions?: number | null;
+  quiz_name?: string | null;
+  quiz_level?: string | null;
+  created_at?: string | null;
+};
 
 export default function ProfilePage() {
   const supabase = getSupabase();
@@ -19,7 +32,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile>(null);
   const [activity, setActivity] = useState<Activity[]>([]);
   const [scores, setScores] = useState<AttemptRow[]>([]);
-  const [, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null); // currently unused UI-wise, but keeps error state
 
   useEffect(() => {
     let active = true;
@@ -46,14 +59,22 @@ export default function ProfilePage() {
         // Force a fresh fetch by adding a timestamp cache buster
         const { data: p, error: profileError } = await supabase
           .from("profiles")
-          .select("id, full_name, role, avatar_url, created_at")
+          .select("id, full_name, role, avatar_key, created_at")
           .eq("id", user.id)
           .maybeSingle();
         if (!cancelled) {
           setProfile(p ?? null);
           if (profileError) {
-            console.error("Error loading profile:", profileError);
-            setError(profileError.message);
+            // Supabase errors can sometimes appear as {} in the console because their
+            // properties are non-enumerable. This makes the message easier to see.
+            const errorMessage =
+              profileError instanceof Error
+                ? profileError.message
+                : (profileError as { message?: string })?.message ||
+                  JSON.stringify(profileError);
+
+            console.error("Error loading profile:", errorMessage, profileError);
+            setError(errorMessage);
           }
         }
       } catch (err) {
@@ -73,23 +94,32 @@ export default function ProfilePage() {
         if (!cancelled) setActivity(Array.isArray(acts) ? (acts as ActRow[]) : []);
       } catch {}
       try {
-        const { data: atts } = await supabase
+        const { data: atts, error: attemptsError } = await supabase
           .from("attempts")
-          .select("score, created_at, quizzes(title)")
+          .select("id, score, total_questions, quiz_name, quiz_level, created_at")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(10);
-        if (!cancelled) setScores(Array.isArray(atts) ? (atts as AttemptRow[]) : []);
-      } catch {
+        if (!cancelled) {
+          if (attemptsError) {
+            console.error("Error loading quiz attempts:", attemptsError);
+          }
+          setScores(Array.isArray(atts) ? (atts as AttemptRow[]) : []);
+        }
+      } catch (err) {
+        console.error("Error fetching attempts:", err);
         if (!cancelled) setScores([]);
       }
     }
     load();
     
-    // Listen for profile changes via Supabase realtime (only if user exists)
-    let channel: ReturnType<typeof supabase.channel> | null = null;
+    // Listen for profile changes and new quiz attempts via Supabase realtime
+    let profileChannel: ReturnType<typeof supabase.channel> | null = null;
+    let attemptsChannel: ReturnType<typeof supabase.channel> | null = null;
+    
     if (user?.id) {
-      channel = supabase
+      // Listen for profile updates
+      profileChannel = supabase
         .channel(`profile-updates:${user.id}`)
         .on(
           'postgres_changes',
@@ -104,11 +134,29 @@ export default function ProfilePage() {
           }
         )
         .subscribe();
+      
+      // Listen for new quiz attempts
+      attemptsChannel = supabase
+        .channel(`attempts-updates:${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'attempts',
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => {
+            if (!cancelled) load();
+          }
+        )
+        .subscribe();
     }
 
     return () => {
       cancelled = true;
-      if (channel) channel.unsubscribe();
+      if (profileChannel) profileChannel.unsubscribe();
+      if (attemptsChannel) attemptsChannel.unsubscribe();
     };
   }, [user?.id, supabase]);
 
@@ -141,16 +189,17 @@ export default function ProfilePage() {
         <div className="relative rounded-2xl border border-white/10 bg-white/5 dark:bg-black/20 backdrop-blur-xl p-6 md:p-8 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)]">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div className="flex items-center gap-5">
-              <div className="relative h-20 w-20 md:h-24 md:w-24 rounded-full overflow-hidden bg-gradient-to-br from-purple-500/30 to-blue-500/30 p-[2px]">
-                <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-purple-500/40 to-blue-500/40 blur-md" aria-hidden />
-                <div className="relative h-full w-full rounded-full overflow-hidden border border-white/20">
-                  {profile?.avatar_url ? (
-                    <Image src={profile.avatar_url} alt="avatar" width={96} height={96} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="h-full w-full flex items-center justify-center text-xs text-muted-foreground">No avatar</div>
-                  )}
-                </div>
-              </div>
+              {(() => {
+                const avatar = getAvatarOption(profile?.avatar_key);
+                return (
+                  <div
+                    className={`relative h-20 w-20 md:h-24 md:w-24 rounded-3xl bg-gradient-to-br ${avatar.gradient} flex items-center justify-center text-4xl shadow-lg ring-1 ring-white/40 transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]`}
+                    aria-label={`${avatar.label} avatar`}
+                  >
+                    <span className="drop-shadow">{avatar.emoji}</span>
+                  </div>
+                );
+              })()}
               <div>
                 <div className="text-2xl md:text-3xl font-bold tracking-tight">{profile?.full_name || user?.email || user?.id}</div>
                 <div className="mt-1 text-sm text-muted-foreground">{profile?.role || "—"}</div>
@@ -191,13 +240,21 @@ export default function ProfilePage() {
                 {scores.length === 0 && (
                   <div className="text-sm text-muted-foreground">No attempts yet.</div>
                 )}
-                {scores.map((s, i) => (
-                  <div key={i} className="group flex items-center justify-between rounded-lg border border-white/5 bg-white/5 dark:bg-black/5 p-3 hover:border-white/15 transition">
-                    <div>
-                      <div className="text-sm font-medium">{s.quizzes?.title || "Quiz"}</div>
-                      <div className="text-xs text-muted-foreground">{s.created_at ? new Date(s.created_at).toLocaleString() : ""}</div>
+                {scores.map((s) => (
+                  <div key={s.id || s.created_at} className="group flex items-center justify-between rounded-lg border border-white/5 bg-white/5 dark:bg-black/5 p-3 hover:border-white/15 transition">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{s.quiz_name || "Quiz"}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {s.created_at ? new Date(s.created_at).toLocaleString() : ""}
+                      </div>
                     </div>
-                    <div className="text-sm px-2 py-1 rounded-md bg-gradient-to-r from-emerald-500/20 to-emerald-500/10 text-emerald-400 border border-emerald-500/30">{s.score ?? "—"}</div>
+                    <div className="ml-3 flex items-center gap-2">
+                      <div className="text-sm px-2 py-1 rounded-md bg-gradient-to-r from-emerald-500/20 to-emerald-500/10 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
+                        {s.score != null && s.total_questions != null 
+                          ? `${s.score}/${s.total_questions}` 
+                          : s.score ?? "—"}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

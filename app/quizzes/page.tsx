@@ -154,12 +154,38 @@ export default function QuizzesPage(): ReactElement {
     if (index < questions.length - 1) setIndex(index + 1);
     else {
       setShowResults(true);
-      // Log completion
+      // Log completion and save to attempts table
       if (userId && active) {
         const sc = questions.reduce((s, q, i) => (answers[i] === q.a ? s + 1 : s), 0);
+        const totalQuestions = questions.length;
+        
+        // Save to activity_log
         supabase
           .from("activity_log")
-          .insert({ user_id: userId, action: `Completed quiz: ${active} (score ${sc}/${questions.length})` })
+          .insert({ user_id: userId, action: `Completed quiz: ${active} (score ${sc}/${totalQuestions})` })
+          .then(() => {}, () => {});
+        
+        // Save to attempts table for quiz history
+        // Map level key to a readable quiz title
+        const quizTitles: Record<LevelKey, string> = {
+          simple: "General Knowledge - Simple",
+          medium: "General Knowledge - Medium",
+          hard: "General Knowledge - Hard",
+          eng_easy: "Engineering Mix - Easy",
+          eng_medium: "Engineering Mix - Medium",
+          eng_hard: "Engineering Mix - Hard",
+        };
+        
+        supabase
+          .from("attempts")
+          .insert({
+            user_id: userId,
+            quiz_name: quizTitles[active],
+            quiz_level: active,
+            score: sc,
+            total_questions: totalQuestions,
+            created_at: new Date().toISOString(),
+          })
           .then(() => {}, () => {});
       }
     }
