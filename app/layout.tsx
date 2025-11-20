@@ -9,6 +9,8 @@ import MobileMenu from "./components/ui/MobileMenu";
 import HeaderClient from "./components/layout/HeaderClient";
 import { TextHoverEffect } from "@/components/ui/text-hover-effect";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
+import NProgressHandler from "./components/NProgressHandler";
+import "nprogress/nprogress.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,6 +56,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <script dangerouslySetInnerHTML={{ __html: setThemeScript }} />
+        <NProgressHandler />
 
         <div className="relative flex min-h-screen flex-col bg-background">
           <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+
+
 :root {
   --background: 0 0% 100%;
   --foreground: 240 10% 3.9%;
@@ -121,3 +123,21 @@ input, textarea, select, button, a, label, [contenteditable="true"] {
 .swatch-violet { background-color: oklch(from hsl(258 90% 66%) l c h); }
 .swatch-emerald { background-color: oklch(from hsl(152 76% 40%) l c h); }
 .swatch-orange { background-color: oklch(from hsl(24 94% 50%) l c h); }
+
+/* NProgress customizations */
+#nprogress .bar {
+  height: 3px !important;
+  background-image:
+    linear-gradient(90deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.35) 100%),
+    linear-gradient(0deg, var(--color-accent), var(--color-accent));
+  background-size: 40px 3px, 100% 100% !important;
+  background-repeat: repeat-x, no-repeat !important;
+  animation: nprogress-stripes 1s linear infinite;
+}
+#nprogress .peg {
+  box-shadow: 0 0 10px var(--color-accent), 0 0 5px var(--color-accent) !important;
+}
+@keyframes nprogress-stripes {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 40px 0, 0 0; }
+}
