@@ -80,7 +80,7 @@ export default function RoleGuard({ allow, children }: { allow: Role | Role[]; c
         <div className="max-w-md text-center rounded-lg border border-border/30 bg-surface p-6">
           <h2 className="text-lg font-semibold">Access Denied</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            You don't have permission to access this page. Your role: {userRole || "Unknown"}
+            You don&apos;t have permission to access this page. Your role: {userRole || "Unknown"}
           </p>
           <div className="mt-4 flex justify-center gap-3">
             <button

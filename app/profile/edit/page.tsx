@@ -105,7 +105,7 @@ export default function EditProfilePage() {
 
     try {
       // Try to update first (most common case)
-      const { data: updateData, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from("profiles")
         .update({
           full_name: fullName.trim() || null,
@@ -119,7 +119,7 @@ export default function EditProfilePage() {
         console.log("Update failed, trying insert:", updateError);
 
         // Check if it's a "not found" or RLS error - try insert
-        const { data: insertData, error: insertError } = await supabase
+        const { error: insertError } = await supabase
           .from("profiles")
           .insert({
             id: userId,
